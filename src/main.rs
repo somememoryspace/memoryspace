@@ -6,8 +6,18 @@ use std::fs::{self, read, create_dir};
 use std::fs::File;
 use std::fs::OpenOptions;
 use std::str;
+use rpassword;
 
 const VERSION: f32 = 0.1;
+
+fn password_input_handle() -> String {
+    let password = rpassword::prompt_password("password: ");
+    let password = match password {
+        Ok(string) => string,
+        Err(error) => panic!("panic! with input: {:?}", error),
+    };
+    return password;
+}
 
 fn input_handle(prompt: &str, lowercase: bool) -> String {
     let mut input_string = String::new();
@@ -125,7 +135,7 @@ fn unlock_and_read() {
         },
         Ok(value) => {
             let filepath = &index[*value];
-            let passphrase = input_handle("gpg password:", false);
+            let passphrase = password_input_handle();
             let run_command = Command::new("sh")
                 .arg("-c")
                 .arg(format!("gpg --batch --pinentry-mode loopback --cipher-algo AES256 --passphrase {passphrase} {filepath}"))
