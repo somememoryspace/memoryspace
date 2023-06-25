@@ -6,8 +6,10 @@ use crate::index;
 use crate::input;
 use crate::input::confirmation_bool;
 
+use index::IndexItem;
+
+
 pub fn unlock_and_read() {
-    input::clear_screen();
     let index = index::index_file_load();
     let selection = input::input_handle("selection:", false);
     match &selection.parse::<usize>() {
@@ -16,7 +18,24 @@ pub fn unlock_and_read() {
             return;
         },
         Ok(value) => {
-            let filepath = &index[*value];
+            let mut index_elements: Vec<IndexItem> = vec![];
+            for (i,val) in index.iter().enumerate() {
+                if val.len() == 0 {
+                    continue;
+                } else {
+                    let index_item = IndexItem::new(
+                        i,
+                        val.to_string(),
+                        index::index_validate_path(&val)
+                    );
+                    index_elements.push(index_item);
+                }
+            }
+            let filepath = index_elements[*value].get_system_path();
+            if index_elements[*value].get_system_linkage().contains("dead") {
+                println!("err: attempting to decrypt dead file.");
+                return;
+            }
             print!("produce temp file? ");
             let confirmation = confirmation_bool();
             let passphrase = input::password_input_handle();

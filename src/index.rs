@@ -12,10 +12,35 @@ use crate::input::confirmation_bool;
 const DATAPATH: &str = "./data/data.ms";
 
 #[derive(Tabled)]
-struct IndexItem {
+pub struct IndexItem {
     index: usize,
     system_path: String,
     system_linkage: String,
+}
+impl IndexItem {
+    pub fn new(index: usize, system_path: String, system_linkage: String) -> Self {
+        return IndexItem { 
+            index: index,
+            system_path: system_path,
+            system_linkage: system_linkage 
+        }
+    }
+    pub fn get_index(&self) -> &usize {
+        return &self.index;
+    }
+    pub fn get_system_path(&self) -> &String {
+        return &self.system_path;
+    }
+    pub fn get_system_linkage(&self) -> &String {
+        return &self.system_linkage;
+    }
+}
+
+pub fn index_validate_path(filepath: &String) -> String {
+    if Path::new(filepath).exists() {
+        return "exists".to_string();
+    }
+    return "dead".to_string();
 }
 
 pub fn index_file_init() {
@@ -98,7 +123,6 @@ pub fn index_file_remove_entry() {
     }
 }
 
-
 //index file loaded into an array and printed
 pub fn index_file_load() -> Vec<String>{
     let loaded_file: Vec<String> = fs::read_to_string(&DATAPATH.to_string())
@@ -122,11 +146,4 @@ pub fn index_file_load() -> Vec<String>{
     let table = Table::new(index_elements).with(Style::psql()).to_string();
     println!("{}", table);
     return loaded_file;
-}
-
-pub fn index_validate_path(filepath: &String) -> String {
-    if Path::new(filepath).exists() {
-        return "exists".to_string();
-    }
-    return "dead".to_string();
 }
