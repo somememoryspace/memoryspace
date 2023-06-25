@@ -11,33 +11,45 @@ const VERSION: f32 = 0.1;
 fn command_prompt() {
     let index = vec![
         "index-list",
+        "   - print the index list",
         "index-init",
+        "   - init a new index list (destructive)",
         "index-add",
+        "   - add entry to the index list",
         "index-remove",
+        "   - remove entry from the index list",
         "index-decrypt",
+        "   - decrypt entry from the index list",
         "index-encrypt",
-
+        "   - encrypt new entry to the index list",
     ];
     let sys = vec![
         "sys-version",
+        "   - print the current binary version",
         "sys-exit",
+        "   - quit the program",
     ];
     let other = vec![
         "clear",
+        "   - clear the screen",
         "help",
+        "   - list the runnable commands",
     ];
     println!("--index--");
     for x in &index {
-        println!(" - {x}");
+        println!("{x}");
     }
+    println!();
     println!("--sys--");
     for x in &sys {
-        println!(" - {x}");
+        println!("{x}");
     }
+    println!();
     println!("--other--");
     for x in &other {
-        println!(" - {x}");
+        println!("{x}");
     }
+    println!();
     stdout().flush().ok();
 }
 
@@ -75,13 +87,14 @@ fn command_proc(command: &str, version: f32) {
             exit(0);
         },
         "help" => {
+            println!("help: commands you can run");
             command_prompt();
         },
         "clear" => {
             input::clear_screen();
         },
         &_=> {
-            println!("err: invalid command");
+            println!("err: invalid command.");
         },
     };
     println!();
@@ -89,7 +102,7 @@ fn command_proc(command: &str, version: f32) {
 
 fn main() {
     loop {
-        let command = input::input_handle("memoryspace", true);
+        let command: String = input::input_handle("memoryspace", true);
         command_proc(&command, VERSION)
     }
 }
