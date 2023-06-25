@@ -7,7 +7,6 @@ use std::path::Path;
 use crate::input;
 use crate::index;
 
-#[derive(Debug)]
 struct IndexItem {
     index: usize,
     path: String,

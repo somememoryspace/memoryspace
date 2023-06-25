@@ -64,7 +64,7 @@ fn command_proc(command: &str, version: f32) {
             println!("index: encrypt an entry"); 
         },
         "index-decrypt" => {
-            println!("index: decrypt an entry"); 
+            println!("index: decrypt an entry");
             gpg::unlock_and_read();
         },
         "sys-version" => {
@@ -89,7 +89,7 @@ fn command_proc(command: &str, version: f32) {
 
 fn main() {
     loop {
-        let command = input::input_handle("root", true);
+        let command = input::input_handle("memoryspace", true);
         command_proc(&command, VERSION)
     }
 }

@@ -30,6 +30,7 @@ pub fn input_handle(prompt: &str, lowercase: bool) -> String {
         false => return input_string.trim().to_string(),
     }
 }
+
 pub fn clear_screen() {
     stdout().flush().ok();
     let clear_result = Command::new("clear").status();

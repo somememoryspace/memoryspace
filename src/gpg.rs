@@ -15,6 +15,8 @@ pub fn unlock_and_read() {
         },
         Ok(value) => {
             let filepath = &index[*value];
+            print!("produce temp file? ");
+            let command = input::input_handle("(yes/no)", true);
             let passphrase = input::password_input_handle();
             //gpg
             let run_command = Command::new("sh")
@@ -34,9 +36,22 @@ pub fn unlock_and_read() {
                 return;
             }
             println!("decrypt: unlock complete.");
-            let filepath = filepath.replace(".gpg", "");
-            output_temp_file(&filepath);
-            delete_temp_file(&filepath);
+            loop {
+                match command.as_str() {
+                    "yes" => {
+                        return;
+                    },
+                    "no" => {
+                        let filepath = filepath.replace(".gpg", "");
+                        output_temp_file(&filepath);
+                        delete_temp_file(&filepath);
+                        return;
+                    },
+                    &_=> {
+                        println!("err: invalid command.");
+                    },
+                }
+            }
         }
     };
 }
