@@ -2,6 +2,8 @@ use std::io::{stdout, Write};
 use std::process::exit;
 use std::str;
 
+use input::clear_screen;
+
 mod input;
 mod index;
 mod gpg;
@@ -100,7 +102,13 @@ fn command_proc(command: &str, version: f32) {
     println!();
 }
 
+fn boot_sequence() {
+    clear_screen();
+    println!("welcome to memoryspace");
+}
+
 fn main() {
+    boot_sequence();
     loop {
         let command: String = input::input_handle("memoryspace", true);
         command_proc(&command, VERSION)

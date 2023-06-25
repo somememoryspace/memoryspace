@@ -7,6 +7,7 @@ use crate::input;
 use crate::input::confirmation_bool;
 
 pub fn unlock_and_read() {
+    input::clear_screen();
     let index = index::index_file_load();
     let selection = input::input_handle("selection:", false);
     match &selection.parse::<usize>() {
