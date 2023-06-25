@@ -25,7 +25,7 @@ impl IndexItem {
             system_linkage: system_linkage 
         }
     }
-    pub fn get_index(&self) -> &usize {
+    pub fn _get_index(&self) -> &usize {
         return &self.index;
     }
     pub fn get_system_path(&self) -> &String {

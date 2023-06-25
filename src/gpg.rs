@@ -8,7 +8,6 @@ use crate::input::confirmation_bool;
 
 use index::IndexItem;
 
-
 pub fn unlock_and_read() {
     let index = index::index_file_load();
     let selection = input::input_handle("selection:", false);

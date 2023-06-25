@@ -11,6 +11,7 @@ pub fn password_input_handle() -> String {
     };
     return password;
 }
+
 pub fn input_handle(prompt: &str, lowercase: bool) -> String {
     let mut input_string = String::new();
     
