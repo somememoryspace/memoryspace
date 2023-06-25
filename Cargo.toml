@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 rpassword = "7.2"
+tabled = "0.12.2"

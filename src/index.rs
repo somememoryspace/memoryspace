@@ -3,6 +3,7 @@ use std::fs;
 use std::fs::File;
 use std::fs::OpenOptions;
 use std::path::Path;
+use tabled::{Table, Tabled, settings::Style};
 
 use crate::input;
 use crate::index;
@@ -10,21 +11,11 @@ use crate::input::confirmation_bool;
 
 const DATAPATH: &str = "./data/data.ms";
 
+#[derive(Tabled)]
 struct IndexItem {
     index: usize,
-    path: String,
-    linkage: String,
-}
-impl IndexItem {
-    pub fn get_index(&self) -> &usize {
-        return &self.index;
-    }
-    pub fn get_path(&self) -> &String {
-        return &self.path;
-    }
-    pub fn get_linkage(&self) -> &String {
-        return &self.linkage;
-    }
+    system_path: String,
+    system_linkage: String,
 }
 
 pub fn index_file_init() {
@@ -115,22 +106,21 @@ pub fn index_file_load() -> Vec<String>{
     .split("\n")
     .map(|line| line.to_string())
     .collect();
+    let mut index_elements: Vec<IndexItem> = vec![];
     for (i,val) in loaded_file.iter().enumerate() {
         if val.len() == 0 {
             continue;
         } else {
             let index_item = IndexItem {
                 index: i,
-                path: val.to_string(),
-                linkage: index_validate_path(&val)
+                system_path: val.to_string(),
+                system_linkage: index_validate_path(&val)
             };
-            println!("[index:{}][path:{}][linkage:{}]", 
-                index_item.get_index(), 
-                index_item.get_path(), 
-                index_item.get_linkage()
-            );
+            index_elements.push(index_item);
         }
     }
+    let table = Table::new(index_elements).with(Style::psql()).to_string();
+    println!("{}", table);
     return loaded_file;
 }
 
