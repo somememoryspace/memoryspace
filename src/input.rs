@@ -39,3 +39,19 @@ pub fn clear_screen() {
         Err(error) => panic!("panic! stdout error: {:?}", error)
     };
 }
+
+pub fn confirmation_bool() -> bool {
+    let command: String = input_handle("(yes/no)", true);
+    match command.as_str() {
+        "yes" => {
+            return true;
+        },
+        "no" => {
+            return false;
+        },
+        &_=> {
+            println!("err: invalid command. (default: false");
+            return false;
+        },
+    }
+}

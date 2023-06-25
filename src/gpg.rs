@@ -4,6 +4,7 @@ use std::fs;
 
 use crate::index;
 use crate::input;
+use crate::input::confirmation_bool;
 
 pub fn unlock_and_read() {
     let index = index::index_file_load();
@@ -16,7 +17,7 @@ pub fn unlock_and_read() {
         Ok(value) => {
             let filepath = &index[*value];
             print!("produce temp file? ");
-            let command = input::input_handle("(yes/no)", true);
+            let confirmation = confirmation_bool();
             let passphrase = input::password_input_handle();
             //gpg
             let run_command = Command::new("sh")
@@ -36,20 +37,15 @@ pub fn unlock_and_read() {
                 return;
             }
             println!("decrypt: unlock complete.");
-            loop {
-                match command.as_str() {
-                    "yes" => {
-                        return;
-                    },
-                    "no" => {
-                        let filepath = filepath.replace(".gpg", "");
-                        output_temp_file(&filepath);
-                        delete_temp_file(&filepath);
-                        return;
-                    },
-                    &_=> {
-                        println!("err: invalid command.");
-                    },
+            match confirmation {
+                true => {
+                    return;
+                },
+                false => {
+                    let filepath = filepath.replace(".gpg", "");
+                    output_temp_file(&filepath);
+                    delete_temp_file(&filepath);
+                    return;
                 }
             }
         }

@@ -6,6 +6,9 @@ use std::path::Path;
 
 use crate::input;
 use crate::index;
+use crate::input::confirmation_bool;
+
+const DATAPATH: &str = "./data/data.ms";
 
 struct IndexItem {
     index: usize,
@@ -25,12 +28,27 @@ impl IndexItem {
 }
 
 pub fn index_file_init() {
+    if index_validate_path(&DATAPATH.to_string()).contains("exists") {
+        let confirmation = confirmation_bool();
+        match confirmation {
+            true => {
+                let init_file = File::create(&DATAPATH.to_string());
+                let _result = match init_file {
+                    Ok(file) => file,
+                    Err(error) => panic!("panic! create file error: {:?}", error)
+                };
+            },
+            false => {
+                return;
+            }
+        }
+    }
     let init_file_dir = fs::create_dir("./data");
     let _result = match init_file_dir {
         Ok(()) =>(),
         Err(_error) => (),
     };
-    let init_file = File::create("./data/data.ms");
+    let init_file = File::create(&DATAPATH.to_string());
     let _result = match init_file {
         Ok(file) => file,
         Err(error) => panic!("panic! create file error: {:?}", error)
@@ -40,7 +58,7 @@ pub fn index_file_init() {
 pub fn index_file_add_entry() {
     let index_file_load_result = OpenOptions::new()
         .append(true)
-        .open("./data/data.ms");
+        .open(&DATAPATH.to_string());
     let mut loaded_file = match index_file_load_result {
         Ok(file) => file,
         Err(error) => panic!("panic! opening file error: {:?}", error)    
@@ -67,7 +85,7 @@ pub fn index_file_remove_entry() {
             index::index_file_init();
             let index_file_load_result = OpenOptions::new()
                 .append(true)
-                .open("./data/data.ms"
+                .open(&DATAPATH.to_string()
             );
             let mut loaded_file = match index_file_load_result {
                 Ok(file) => file,
@@ -91,7 +109,7 @@ pub fn index_file_remove_entry() {
 
 //index file loaded into an array and printed
 pub fn index_file_load() -> Vec<String>{
-    let loaded_file: Vec<String> = fs::read_to_string("./data/data.ms")
+    let loaded_file: Vec<String> = fs::read_to_string(&DATAPATH.to_string())
     .expect("panic! load error")
     .split("\n")
     .map(|line| line.to_string())
