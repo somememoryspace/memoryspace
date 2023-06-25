@@ -50,7 +50,7 @@ pub fn confirmation_bool() -> bool {
             return false;
         },
         &_=> {
-            println!("err: invalid command. (default: false");
+            println!("err: invalid command. (default: false)");
             return false;
         },
     }

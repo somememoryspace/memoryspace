@@ -29,6 +29,7 @@ impl IndexItem {
 
 pub fn index_file_init() {
     if index_validate_path(&DATAPATH.to_string()).contains("exists") {
+        print!("found previous data. continue? ");
         let confirmation = confirmation_bool();
         match confirmation {
             true => {
