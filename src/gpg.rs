@@ -54,6 +54,17 @@ pub fn unlock_and_read() {
     };
 }
 
+pub fn encrypt_file() {
+    index::index_table_display();
+    let result = ARRAY.lock();
+    let _result = match result {
+        Err(error) => panic!("panic! table display error: {:?}", error),
+        Ok(mg) => {
+            let selection = input::input_handle("encrypt filepath:", false);
+        },   
+    };
+}
+
 pub fn gpg_decrypt_handle(passphrase: String, filepath: String) {
     if !(filepath.contains(".gpg")) {
         println!("err: attempting to decrypt a non gpg instance.");
