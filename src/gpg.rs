@@ -55,6 +55,10 @@ pub fn unlock_and_read() {
 }
 
 pub fn gpg_decrypt_handle(passphrase: String, filepath: String) {
+    if !(filepath.contains(".gpg")) {
+        println!("err: attempting to decrypt a non gpg instance.");
+        return;
+    }
     let run_command = Command::new("sh")
     .arg("-c")
     .arg(format!("gpg --batch --pinentry-mode loopback --cipher-algo AES256 --passphrase {passphrase} {filepath}"))
@@ -71,7 +75,19 @@ pub fn gpg_decrypt_handle(passphrase: String, filepath: String) {
         println!("err: decryption error. bad password.");
         return;
     }
-    println!("decrypt: unlock complete.");
+    println!("decrypt: complete.");
+}
+
+pub fn gpg_encrypt_handle(passphrase: String, filepath: String) {
+    let run_command = Command::new("sh")
+    .arg("-c")
+    .arg(format!("gpg -c --batch --pinentry-mode loopback --cipher-algo AES256 --passphrase {passphrase} {filepath}.gpg"))
+    .output();
+    let _result = match run_command {
+        Ok(output) => output.stderr,
+        Err(error) => panic!("panic! error running gpg: {:?}", error)    
+    };
+    println!("encrypt: complete.");
 }
 
 fn delete_temp_file(filepath: &String) {
