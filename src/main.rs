@@ -104,6 +104,7 @@ fn command_proc(command: &str, version: f32) {
         "index-remove" => {
             println!("index: removing entry");
             index::index_file_remove_entry();
+            load_array();
         },
         "index-encrypt" => {
             println!("index: encrypt an entry"); 
