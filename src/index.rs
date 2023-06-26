@@ -8,7 +8,6 @@ use tabled::{Table, Tabled, settings::Style};
 use crate::ARRAY;
 use crate::input;
 use crate::index;
-use crate::input::confirmation_bool;
 
 const DATAPATH: &str = "./data/data.ms";
 
@@ -18,18 +17,20 @@ pub struct IndexItem {
     index: usize,
     system_path: String,
     system_linkage: String,
+    file_type: String,
     datapath: String,
 }
 impl IndexItem {
     pub fn new(index: usize, system_path: String, system_linkage: String) -> Self {
         return IndexItem { 
             index: index,
-            system_path: system_path,
+            system_path: system_path.clone(),
             system_linkage: system_linkage,
+            file_type: filetype(system_path.clone()),
             datapath: "./data/data.ms".to_string(),
         }
     }
-    pub fn get_index(&self) -> &usize {
+    pub fn _get_index(&self) -> &usize {
         return &self.index;
     }
     pub fn get_system_path(&self) -> &String {
@@ -38,10 +39,26 @@ impl IndexItem {
     pub fn get_system_linkage(&self) -> &String {
         return &self.system_linkage;
     }
-    pub fn get_datapath(&self) -> &String {
+    pub fn _get_datapath(&self) -> &String {
         return &self.datapath;
     }
 }
+
+fn filetype(filepath: String) -> String {
+    if filepath.contains(".txt") {
+        return "txt file".to_string();
+    }
+    if filepath.contains(".zip") {
+        return "zip archive".to_string();
+    }
+    if filepath.contains(".tar") {
+        return "tarbell archive".to_string();
+    }
+    if filepath.contains(".gz") {
+        return "gunzip archive".to_string();
+    }
+    return "other".to_string();
+} 
 
 pub fn index_validate_path(filepath: String) -> String {
     if Path::new(&filepath).exists() {

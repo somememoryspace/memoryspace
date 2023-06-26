@@ -7,8 +7,6 @@ use crate::index;
 use crate::input;
 use crate::input::confirmation_bool;
 
-use index::IndexItem;
-
 pub fn unlock_and_read() {
     index::index_table_display();
     let selection = input::input_handle("selection:", false);

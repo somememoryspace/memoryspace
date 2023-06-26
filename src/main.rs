@@ -2,7 +2,7 @@ use std::io::{stdout, Write};
 use std::process::exit;
 use std::str;
 use std::fs;
-use lazy_static::lazy_static; // 1.4.0
+use lazy_static::lazy_static;
 use std::sync::Mutex;
 
 use input::clear_screen;
@@ -100,7 +100,6 @@ fn command_proc(command: &str, version: f32) {
             println!("index: adding new path entry to index"); 
             index::index_file_add_entry();
             load_array();
-            println!("{}",ARRAY.lock().unwrap().len());
         },
         "index-remove" => {
             println!("index: removing entry");
