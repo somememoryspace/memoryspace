@@ -3,6 +3,7 @@ use std::fs;
 use std::fs::File;
 use std::fs::OpenOptions;
 use std::path::Path;
+use std::sync::MutexGuard;
 use tabled::{Table, Tabled, settings::Style};
 
 use crate::ARRAY;
@@ -87,78 +88,50 @@ pub fn index_file_init() {
     };
 }
 
-pub fn index_file_add_entry() {
-    index_table_display();
-    let new_entry: String = input::input_handle("new file path", false);
-    let result = ARRAY.lock();
-    let _result = match result {
-        Ok(mut mg) => {
-            let index_item = index::IndexItem::new(
-                mg.len(),
-                new_entry.clone(),
-                index::index_validate_path(new_entry)
-            );
-            mg.push(index_item);
-        },
-        Err(error) => panic!("panic! remove index element error: {:?}", error)    
-    };
-    write_to_file();
+pub fn index_file_add_entry(mut mutex_guard: MutexGuard<'_,Vec<IndexItem>>, filepath: String) {
+    let index_item = index::IndexItem::new(
+        mutex_guard.len(),
+        filepath.clone(),
+        index::index_validate_path(filepath.clone())
+    );
+    mutex_guard.push(index_item);
+    write_to_file(&mutex_guard);
 }
 
-pub fn index_file_remove_entry() {
-    index_table_display();
-    let selection = input::input_handle("selection:", false);
+pub fn index_file_remove_entry(selection: String, mut mutex_guard: MutexGuard<'_,Vec<IndexItem>>) {
     match &selection.parse::<usize>() {
         Err(error) => {
             println!("err: invalid entry. {}", error);
             return;
         },
         Ok(value) => {
-            let result = ARRAY.lock();
-            let _result = match result {
-                Ok(mut mg) => {
-                    mg.remove(*value);
-                },
-                Err(error) => panic!("panic! remove index element error: {:?}", error)    
-            };
+            mutex_guard.remove(*value);
         }
     }
-    write_to_file();
+    write_to_file(&mutex_guard);
 }
 
-pub fn write_to_file() {
+pub fn write_to_file(mutex_guard: &MutexGuard<'_,Vec<IndexItem>>) {
     index_file_init();
-    let result = ARRAY.lock();
-    let _result = match result {
-        Ok(mg) => {
-            let index_file_load_result = OpenOptions::new()
-                .append(true)
-                .open(&DATAPATH.to_string());
-            let mut loaded_file = match index_file_load_result {
-                Ok(file) => file,
-                Err(error) => panic!("panic! opening file error: {:?}", error)    
-            };
-            for item in mg.iter() {
-                let write_result = writeln!(loaded_file, "{}",item.get_system_path());
-                let _result = match  write_result {
-                    Ok(()) => (),
-                    Err(error) => panic!("panic! writing file error: {:?}", error)    
-                };
-            }
-        },
-        Err(error) => panic!("panic! mutex error: {:?}", error)    
+    let index_file_load_result = OpenOptions::new()
+        .append(true)
+        .open(&DATAPATH.to_string());
+    let mut loaded_file = match index_file_load_result {
+        Ok(file) => file,
+        Err(error) => panic!("panic! opening file error: {:?}", error)    
     };
+    for item in mutex_guard.iter() {
+        let write_result = writeln!(loaded_file, "{}",item.get_system_path());
+        let _result = match  write_result {
+            Ok(()) => (),
+            Err(error) => panic!("panic! writing file error: {:?}", error)    
+        };
+    }
 }
 
-pub fn index_table_display() {
-    let result = ARRAY.lock();
-    let _result = match result {
-        Ok(mg) => {
-            let table = Table::new(mg.iter()).with(Style::psql()).to_string();
-            println!();
-            println!("{}", table);
-            println!();
-        },
-        Err(error) => panic!("panic! table display error: {:?}", error)    
-    };
+pub fn index_table_display(mutex_guard: &MutexGuard<'_,Vec<IndexItem>>) {
+    let table = Table::new(mutex_guard.iter()).with(Style::psql()).to_string();
+    println!();
+    println!("{}", table);
+    println!();
 }

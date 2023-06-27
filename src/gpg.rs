@@ -8,7 +8,6 @@ use crate::input;
 use crate::input::confirmation_bool;
 
 pub fn unlock_and_read() {
-    index::index_table_display();
     let selection = input::input_handle("selection:", false);
     match &selection.parse::<usize>() {
         Err(error) => {
@@ -55,7 +54,6 @@ pub fn unlock_and_read() {
 }
 
 pub fn encrypt_file() {
-    index::index_table_display();
     let result = ARRAY.lock();
     let _result = match result {
         Err(error) => panic!("panic! table display error: {:?}", error),

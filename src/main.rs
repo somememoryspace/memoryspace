@@ -91,47 +91,58 @@ fn command_prompt() {
 
 fn command_proc(command: &str, version: f32) {
     println!();
-    match command {
-        "index-list" => {
-            println!("index: printing current index file");
-            index::index_table_display() 
+    let result = ARRAY.lock();
+    let _result = match result {
+        Ok(mg) => {
+            match command {
+                "index-list" => {
+                    println!("index: printing current index file");
+                    index::index_table_display(&mg) 
+                },
+                "index-add" => {
+                    println!("index: adding new path entry to index"); 
+                    index::index_table_display(&mg);
+                    let filepath: String = input::input_handle("new file path", false);
+                    index::index_file_add_entry(mg, filepath);
+                    load_array();
+                },
+                "index-remove" => {
+                    println!("index: removing entry");
+                    index::index_table_display(&mg);
+                    let selection = input::input_handle("selection:", false);
+                    index::index_file_remove_entry(selection, mg);
+                    load_array();
+                },
+                "index-encrypt" => {
+                    println!("index: encrypt an entry"); 
+                },
+                "index-decrypt" => {
+                    println!("index: decrypt an entry");
+                    gpg::unlock_and_read();
+                },
+                "sys-version" => {
+                    println!("sys: version {}", version); 
+                },
+                "sys-exit" => {
+                    println!("sys: exit"); 
+                    exit(0);
+                },
+                "help" => {
+                    println!("help: commands you can run");
+                    command_prompt();
+                },
+                "clear" => {
+                    input::clear_screen();
+                },
+                &_=> {
+                    println!("err: invalid command.");
+                },
+            };
+            println!();
         },
-        "index-add" => {
-            println!("index: adding new path entry to index"); 
-            index::index_file_add_entry();
-            load_array();
-        },
-        "index-remove" => {
-            println!("index: removing entry");
-            index::index_file_remove_entry();
-            load_array();
-        },
-        "index-encrypt" => {
-            println!("index: encrypt an entry"); 
-        },
-        "index-decrypt" => {
-            println!("index: decrypt an entry");
-            gpg::unlock_and_read();
-        },
-        "sys-version" => {
-            println!("sys: version {}", version); 
-        },
-        "sys-exit" => {
-            println!("sys: exit"); 
-            exit(0);
-        },
-        "help" => {
-            println!("help: commands you can run");
-            command_prompt();
-        },
-        "clear" => {
-            input::clear_screen();
-        },
-        &_=> {
-            println!("err: invalid command.");
-        },
+        Err(error) => panic!("panic! table display error: {:?}", error)    
     };
-    println!();
+
 }
 
 fn boot_sequence() {
