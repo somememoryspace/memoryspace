@@ -65,8 +65,8 @@ pub fn confirmation_bool() -> bool {
             return false;
         },
         &_=> {
-            confirmation_bool();
-            return false;
+            let confirm = confirmation_bool();
+            return confirm;
         },
     }
 }
