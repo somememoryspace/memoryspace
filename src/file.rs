@@ -1,9 +1,6 @@
-
 pub fn create_file(filepath: String) {
-    let path = std::path::Path::new(&filepath);
-    let prefix = path.parent();
-    let prefix = match prefix {
-
-    };
-    std::fs::create_dir_all(prefix).unwra
+    let mut filepath_vec: Vec<String> = filepath.split("/").map(|s| s.to_string()).collect();
+    let filename = filepath_vec.remove(&filepath_vec.len()-1);
+    println!("{}", filename);
+    println!("{:?}", filepath_vec);
 }

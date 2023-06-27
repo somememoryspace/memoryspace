@@ -10,6 +10,7 @@ use input::clear_screen;
 mod input;
 mod index;
 mod gpg;
+mod file;
 
 const VERSION: f32 = 0.1;
 const DATAPATH: &str = "./data/data.ms";
@@ -104,8 +105,7 @@ fn command_proc(command: &str, version: f32) {
                     index::index_table_display(&mutex_guard);
                     index::index_file_add_entry(
                         mutex_guard, 
-                        input::input_handle("new file path", 
-                        false)
+                        input::input_handle("new file path",false)
                     );
                     load_array();
                 },
@@ -121,6 +121,7 @@ fn command_proc(command: &str, version: f32) {
                 "index-encrypt" => {
                     println!("index: encrypt an entry"); 
                     index::index_table_display(&mutex_guard);
+                    file::create_file(input::input_handle("new file path",false));
                 },
                 "index-decrypt" => {
                     println!("index: decrypt an entry");
