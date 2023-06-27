@@ -31,8 +31,8 @@ pub fn unlock_and_read(selection: usize, password: String, temp_file_bool: bool,
     }
 }
 
-pub fn encrypt_file(filepath: String) {
-   
+pub fn encrypt_and_load(password: String, filepath: String, mut mutex_guard: MutexGuard<'_,Vec<IndexItem>>) {
+    //load into the array
 }
 
 pub fn gpg_decrypt_handle(passphrase: String, filepath: String) {
@@ -59,10 +59,10 @@ pub fn gpg_decrypt_handle(passphrase: String, filepath: String) {
     println!("decrypt: complete.");
 }
 
-pub fn gpg_encrypt_handle(passphrase: String, filepath: String) {
+pub fn gpg_encrypt_handle(password: String, filepath: String) {
     let run_command = Command::new("sh")
     .arg("-c")
-    .arg(format!("gpg -c --batch --pinentry-mode loopback --cipher-algo AES256 --passphrase {passphrase} {filepath}.gpg"))
+    .arg(format!("gpg -c --batch --pinentry-mode loopback --cipher-algo AES256 --passphrase {password} {filepath}.gpg"))
     .output();
     let _result = match run_command {
         Ok(output) => output.stderr,
