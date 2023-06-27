@@ -12,7 +12,6 @@ pub fn create_file(filepath: String) {
     let _creation = match creation {
         Err(error) => panic!("panic! creating directory error: {:?}", error),
         Ok(()) => {
-            println!("msg: directory created");
             let init_file = File::create(&filepath);
             let _result = match init_file {
                 Err(error) => panic!("panic! create file error: {:?}", error),
