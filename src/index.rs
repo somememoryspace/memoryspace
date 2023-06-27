@@ -6,8 +6,6 @@ use std::path::Path;
 use std::sync::MutexGuard;
 use tabled::{Table, Tabled, settings::Style};
 
-use crate::ARRAY;
-use crate::input;
 use crate::index;
 
 const DATAPATH: &str = "./data/data.ms";

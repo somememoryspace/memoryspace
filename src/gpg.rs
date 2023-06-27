@@ -1,66 +1,38 @@
 use std::process::Command;
 use std::str;
 use std::fs;
+use std::sync::MutexGuard;
+use crate::index::IndexItem;
 
-use crate::ARRAY;
-use crate::index;
-use crate::input;
-use crate::input::confirmation_bool;
-
-pub fn unlock_and_read() {
-    let selection = input::input_handle("selection:", false);
-    match &selection.parse::<usize>() {
-        Err(error) => {
-            println!("err: invalid entry. {}", error);
-            return;
-        },
-        Ok(value) => {
-            let result = ARRAY.lock();
-            let _result = match result {
-                Err(error) => panic!("panic! table display error: {:?}", error),
-                Ok(mg) => {
-                    let filepath = mg.get(*value);
-                    match filepath {
-                        None => panic!("panic! array error"),
-                        Some(index_item) => {
-                            let linkage = index_item.get_system_linkage();
-                            if linkage.contains("dead") {
-                                println!("err: attempting to decrypt a dead file");
-                                return;
-                            }
-                            let filepath = index_item.get_system_path();
-                            print!("produce temp file? ");
-                            let confirmation = confirmation_bool();
-                            let passphrase = input::password_input_handle();
-                            //gpg
-                            gpg_decrypt_handle(passphrase, filepath.to_string());
-                            match confirmation {
-                                true => {
-                                    return;
-                                },
-                                false => {
-                                    let filepath = filepath.replace(".gpg", "");
-                                    output_temp_file(&filepath);
-                                    delete_temp_file(&filepath);
-                                    return;
-                                }
-                            }
-                        },
-                    }
+pub fn unlock_and_read(selection: usize, password: String, temp_file_bool: bool, mutex_guard: MutexGuard<'_,Vec<IndexItem>>) {
+    let filepath = mutex_guard.get(selection);
+    match filepath {
+        None => panic!("panic! array indexing error"),
+        Some(index_item) => {
+            let filepath = index_item.get_system_path();
+            let linkage = index_item.get_system_linkage();
+            if linkage.contains("dead") {
+                println!("err: attempting to decrypt a dead file");
+                return;
+            }
+            gpg_decrypt_handle(password, filepath.to_string());
+            match temp_file_bool {
+                true => {
+                    return;
                 },
-            };
-        }
-    };
+                false => {
+                    let filepath = filepath.replace(".gpg", "");
+                    output_temp_file(&filepath);
+                    delete_temp_file(&filepath);
+                    return;
+                }
+            }
+        },
+    }
 }
 
-pub fn encrypt_file() {
-    let result = ARRAY.lock();
-    let _result = match result {
-        Err(error) => panic!("panic! table display error: {:?}", error),
-        Ok(mg) => {
-            let selection = input::input_handle("encrypt filepath:", false);
-        },   
-    };
+pub fn encrypt_file(filepath: String) {
+   
 }
 
 pub fn gpg_decrypt_handle(passphrase: String, filepath: String) {

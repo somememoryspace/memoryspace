@@ -93,23 +93,29 @@ fn command_proc(command: &str, version: f32) {
     println!();
     let result = ARRAY.lock();
     let _result = match result {
-        Ok(mg) => {
+        Ok(mutex_guard) => {
             match command {
                 "index-list" => {
                     println!("index: printing current index file");
-                    index::index_table_display(&mg) 
+                    index::index_table_display(&mutex_guard) 
                 },
                 "index-add" => {
                     println!("index: adding new path entry to index"); 
-                    index::index_table_display(&mg);
-                    let filepath: String = input::input_handle("new file path", false);
-                    index::index_file_add_entry(mg, filepath);
+                    index::index_table_display(&mutex_guard);
+                    index::index_file_add_entry(
+                        mutex_guard, 
+                        input::input_handle("new file path", 
+                        false)
+                    );
                     load_array();
                 },
                 "index-remove" => {
                     println!("index: removing entry");
-                    index::index_table_display(&mg);
-                    index::index_file_remove_entry(input::input_handle_integer(), mg);
+                    index::index_table_display(&mutex_guard);
+                    index::index_file_remove_entry(
+                        input::input_handle_integer(), 
+                        mutex_guard
+                    );
                     load_array();
                 },
                 "index-encrypt" => {
@@ -117,7 +123,13 @@ fn command_proc(command: &str, version: f32) {
                 },
                 "index-decrypt" => {
                     println!("index: decrypt an entry");
-                    gpg::unlock_and_read();
+                    index::index_table_display(&mutex_guard);
+                    gpg::unlock_and_read(
+                        input::input_handle_integer(), 
+                        input::password_input_handle(),
+                        input::confirmation_bool("produce output file?".to_string()), 
+                        mutex_guard
+                    );
                 },
                 "sys-version" => {
                     println!("sys: version {}", version); 

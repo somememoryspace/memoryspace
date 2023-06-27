@@ -55,8 +55,9 @@ pub fn clear_screen() {
     };
 }
 
-pub fn confirmation_bool() -> bool {
-    let command: String = input_handle("(yes/no)", true);
+pub fn confirmation_bool(base_prompt: String) -> bool {
+    let confirmation_string = base_prompt.clone() + " (yes/no)";
+    let command: String = input_handle(&confirmation_string, true);
     match command.as_str() {
         "yes" => {
             return true;
@@ -65,7 +66,7 @@ pub fn confirmation_bool() -> bool {
             return false;
         },
         &_=> {
-            let confirm = confirmation_bool();
+            let confirm = confirmation_bool(base_prompt.clone());
             return confirm;
         },
     }
