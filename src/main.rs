@@ -120,6 +120,7 @@ fn command_proc(command: &str, version: f32) {
                 },
                 "index-encrypt" => {
                     println!("index: encrypt an entry"); 
+                    index::index_table_display(&mutex_guard);
                 },
                 "index-decrypt" => {
                     println!("index: decrypt an entry");
