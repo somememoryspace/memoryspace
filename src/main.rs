@@ -121,17 +121,61 @@ fn command_proc(command: &str, version: f32) {
                 "index-encrypt" => {
                     println!("index: encrypt an entry"); 
                     index::index_table_display(&mutex_guard);
-                    file::create_file(input::input_handle("new file path",false));
+                    let filepath = input::input_handle("new file path",false);
+                    file::create_file(filepath.to_owned());
+                    let success = gpg::gpg_encrypt_handle(input::password_input_handle(), filepath.to_owned());
+                    match success {
+                        true => {
+                            index::index_file_add_entry(mutex_guard, filepath.to_owned() + ".gpg");
+                            load_array();
+                            return;
+                        },
+                        false => {
+                            println!("err: encrypt process failed");
+                            return;
+                        }
+                    }
+
                 },
                 "index-decrypt" => {
                     println!("index: decrypt an entry");
                     index::index_table_display(&mutex_guard);
-                    gpg::unlock_and_read(
-                        input::input_handle_integer(), 
-                        input::password_input_handle(),
-                        input::confirmation_bool("produce output file?".to_string()), 
-                        mutex_guard
-                    );
+                    let temp_file_bool = input::confirmation_bool("produce output file?".to_string());
+                    let selection = input::input_handle_integer();
+                    let filepath = mutex_guard.get(selection);
+                    match filepath {
+                        None => panic!("panic! array indexing error"),
+                        Some(index_item) => {
+                            let filepath = index_item.get_system_path();
+                            let linkage = index_item.get_system_linkage();
+                            if linkage.contains("dead") {
+                                println!("err: attempting to decrypt a dead file");
+                                return;
+                            }
+                            let success = gpg::gpg_decrypt_handle(input::password_input_handle(), filepath.to_string());
+                            match success {
+                                true => {
+                                    match temp_file_bool {
+                                        true => {
+                                            return;
+                                        },
+                                        false => {
+                                            println!("{}", filepath);
+                                            let filepath = filepath.replace(".gpg", "");
+                                            file::output_temp_file(&filepath);
+                                            file::delete_temp_file(&filepath);
+                                            return;
+                                        }
+                                    }
+                                },
+                                false => {
+                                    println!("err: decrypt process failed");
+                                    return;
+                                }
+                            }
+
+                        },
+                    }
                 },
                 "sys-version" => {
                     println!("sys: version {}", version); 

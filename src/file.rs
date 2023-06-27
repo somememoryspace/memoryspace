@@ -1,6 +1,5 @@
 use std::fs;
 use std::fs::File;
-use std::fs::OpenOptions;
 use std::path::Path;
 
 pub fn create_file(filepath: String) {
@@ -24,4 +23,21 @@ pub fn create_file(filepath: String) {
             }; 
         },   
     };
+}
+
+pub fn delete_temp_file(filepath: &String) {
+    let init_file = fs::remove_file(filepath);
+    let _result = match init_file {
+        Ok(()) => (),
+        Err(error) => panic!("panic! delete file error: {:?}", error)
+    };
+}
+
+pub fn output_temp_file(filepath: &String) {
+    let init_file = fs::read_to_string(filepath);
+    let result = match init_file {
+        Ok(file) => file,
+        Err(error) => panic!("panic! read file error: {:?}", error)
+    };
+    println!("{}",result);
 }
