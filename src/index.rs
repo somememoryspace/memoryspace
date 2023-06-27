@@ -7,6 +7,7 @@ use std::sync::MutexGuard;
 use tabled::{Table, Tabled, settings::Style};
 
 use crate::index;
+use crate::file;
 
 const DATAPATH: &str = "./data/data.ms";
 
@@ -25,7 +26,7 @@ impl IndexItem {
             index: index,
             system_path: system_path.clone(),
             system_linkage: system_linkage,
-            file_type: filetype(system_path.clone()),
+            file_type: file::filetype(system_path.clone()),
             datapath: "./data/data.ms".to_string(),
         }
     }
@@ -41,29 +42,6 @@ impl IndexItem {
     pub fn _get_datapath(&self) -> &String {
         return &self.datapath;
     }
-}
-
-fn filetype(filepath: String) -> String {
-    if filepath.contains(".txt") {
-        return "txt file".to_string();
-    }
-    if filepath.contains(".zip") {
-        return "zip archive".to_string();
-    }
-    if filepath.contains(".tar") {
-        return "tarbell archive".to_string();
-    }
-    if filepath.contains(".gz") {
-        return "gunzip archive".to_string();
-    }
-    return "other".to_string();
-} 
-
-pub fn index_validate_path(filepath: String) -> String {
-    if Path::new(&filepath).exists() {
-        return "exists".to_string();
-    }
-    return "dead".to_string();
 }
 
 pub fn index_file_init() {
@@ -83,7 +61,7 @@ pub fn index_file_add_entry(mut mutex_guard: MutexGuard<'_,Vec<IndexItem>>, file
     let index_item = index::IndexItem::new(
         mutex_guard.len(),
         filepath.clone(),
-        index::index_validate_path(filepath.clone())
+        file::validate_path_desc(filepath.clone())
     );
     mutex_guard.push(index_item);
     write_to_file(&mutex_guard);

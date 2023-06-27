@@ -36,7 +36,7 @@ fn load_array() {
                     let index_item = index::IndexItem::new(
                         i,
                         val.to_string(),
-                        index::index_validate_path(val.to_string())
+                        file::validate_path_desc(val.to_string())
                     );
                     mg.push(index_item);
                 }
@@ -205,7 +205,7 @@ fn command_proc(command: &str, version: f32) {
 fn boot_sequence() {
     clear_screen();
     println!("welcome to memoryspace");
-    if !(file::validate_file(DATAPATH.to_string())) {
+    if !(file::validate_file_bool(DATAPATH.to_string())) {
         index::index_file_init();
     }
 }

@@ -25,11 +25,34 @@ pub fn create_file(filepath: String) {
     };
 }
 
-pub fn validate_file(filepath: String) -> bool {
+pub fn filetype(filepath: String) -> String {
+    if filepath.contains(".txt") {
+        return "txt file".to_string();
+    }
+    if filepath.contains(".zip") {
+        return "zip archive".to_string();
+    }
+    if filepath.contains(".tar") {
+        return "tarbell archive".to_string();
+    }
+    if filepath.contains(".gz") {
+        return "gunzip archive".to_string();
+    }
+    return "other".to_string();
+} 
+
+pub fn validate_file_bool(filepath: String) -> bool {
     match Path::new(&filepath).exists() {
         true => return true,
         false => return false,
     }
+}
+
+pub fn validate_path_desc(filepath: String) -> String {
+    if Path::new(&filepath).exists() {
+        return "exists".to_string();
+    }
+    return "dead".to_string();
 }
 
 pub fn delete_temp_file(filepath: &String) {
