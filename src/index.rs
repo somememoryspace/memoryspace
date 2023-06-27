@@ -98,16 +98,8 @@ pub fn index_file_add_entry(mut mutex_guard: MutexGuard<'_,Vec<IndexItem>>, file
     write_to_file(&mutex_guard);
 }
 
-pub fn index_file_remove_entry(selection: String, mut mutex_guard: MutexGuard<'_,Vec<IndexItem>>) {
-    match &selection.parse::<usize>() {
-        Err(error) => {
-            println!("err: invalid entry. {}", error);
-            return;
-        },
-        Ok(value) => {
-            mutex_guard.remove(*value);
-        }
-    }
+pub fn index_file_remove_entry(selection: usize, mut mutex_guard: MutexGuard<'_,Vec<IndexItem>>) {
+    mutex_guard.remove(selection);
     write_to_file(&mutex_guard);
 }
 

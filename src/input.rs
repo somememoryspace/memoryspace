@@ -32,6 +32,20 @@ pub fn input_handle(prompt: &str, lowercase: bool) -> String {
     }
 }
 
+pub fn input_handle_integer() -> usize {
+    let base_input = input_handle("enter a number:", false);
+    match &base_input.parse::<usize>() {
+        Err(error) => {
+            println!("err: invalid entry. {}", error);
+            let value = input_handle_integer();
+            return value;
+        },
+        Ok(value) => {
+            return *value;
+        }
+    }
+}
+
 pub fn clear_screen() {
     stdout().flush().ok();
     let clear_result = Command::new("clear").status();

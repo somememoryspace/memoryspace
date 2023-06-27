@@ -109,8 +109,7 @@ fn command_proc(command: &str, version: f32) {
                 "index-remove" => {
                     println!("index: removing entry");
                     index::index_table_display(&mg);
-                    let selection = input::input_handle("selection:", false);
-                    index::index_file_remove_entry(selection, mg);
+                    index::index_file_remove_entry(input::input_handle_integer(), mg);
                     load_array();
                 },
                 "index-encrypt" => {
