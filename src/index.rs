@@ -66,13 +66,6 @@ pub fn index_validate_path(filepath: String) -> String {
     return "dead".to_string();
 }
 
-pub fn index_validate_path_bool(filepath: String) -> bool {
-    match Path::new(&filepath).exists() {
-        true => return true,
-        false => return false,
-    }
-}
-
 pub fn index_file_init() {
     let init_file_dir = fs::create_dir("./data");
     let _result = match init_file_dir {

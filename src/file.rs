@@ -25,6 +25,13 @@ pub fn create_file(filepath: String) {
     };
 }
 
+pub fn validate_file(filepath: String) -> bool {
+    match Path::new(&filepath).exists() {
+        true => return true,
+        false => return false,
+    }
+}
+
 pub fn delete_temp_file(filepath: &String) {
     let init_file = fs::remove_file(filepath);
     let _result = match init_file {

@@ -205,7 +205,7 @@ fn command_proc(command: &str, version: f32) {
 fn boot_sequence() {
     clear_screen();
     println!("welcome to memoryspace");
-    if !(index::index_validate_path_bool(DATAPATH.to_string())) {
+    if !(file::validate_file(DATAPATH.to_string())) {
         index::index_file_init();
     }
 }
