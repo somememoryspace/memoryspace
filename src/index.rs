@@ -13,12 +13,12 @@ pub struct IndexItem {
     datapath: String,
 }
 impl IndexItem {
-    pub fn new(index: usize, system_path: String, system_linkage: String) -> Self {
+    pub fn new(index: usize, system_path: &String, system_linkage: &String) -> Self {
         return IndexItem { 
             index: index,
-            system_path: system_path.clone(),
-            system_linkage: system_linkage,
-            file_type: file::filetype(system_path.clone()),
+            system_path: system_path.to_owned(),
+            system_linkage: system_linkage.to_owned(),
+            file_type: file::filetype(system_path),
             datapath: "./data/data.ms".to_string(),
         }
     }
@@ -39,6 +39,6 @@ impl IndexItem {
 pub fn index_table_display(mutex_guard: &MutexGuard<'_,Vec<IndexItem>>) {
     let table = Table::new(mutex_guard.iter()).with(Style::psql()).to_string();
     println!();
-    println!("{}", table);
+    println!("{}", &table);
     println!();
 }

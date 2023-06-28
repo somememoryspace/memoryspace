@@ -14,7 +14,7 @@ mod index;
 mod gpg;
 mod file;
 
-const VERSION: f32 = 0.1;
+const VERSION: f32 = 1.0;
 
 lazy_static! {
     static ref ARRAY: Mutex<Vec<index::IndexItem>> = Mutex::new(vec![]);
@@ -23,7 +23,7 @@ lazy_static! {
 fn load_array(data_filepath: &String, mut mutex_guard: MutexGuard<'_,Vec<IndexItem>>) {
     mutex_guard.clear(); //clear previous
     let loaded_file: Vec<String> = fs::read_to_string(data_filepath)
-    .expect("panic! load error")
+    .expect("err: array load error")
     .split("\n")
     .map(|line| line.to_string())
     .collect();
@@ -33,8 +33,8 @@ fn load_array(data_filepath: &String, mut mutex_guard: MutexGuard<'_,Vec<IndexIt
         } else {
             let index_item = index::IndexItem::new(
                 i,
-                val.to_string(),
-                file::validate_path_desc(val.to_string())
+                &val,
+                &file::validate_path_desc(&val)
             );
             mutex_guard.push(index_item);
         }
@@ -101,8 +101,8 @@ fn command_proc(command: &str, data_filepath: &String, version: f32) {
                     let filepath = input::input_handle("new file path",false);
                     let index_item = index::IndexItem::new(
                         mutex_guard.len(),
-                        filepath.clone(),
-                        file::validate_path_desc(filepath.clone())
+                        &filepath,
+                        &file::validate_path_desc(&filepath),
                     );
                     mutex_guard.push(index_item);
                     file::overwrite_file(data_filepath, &mutex_guard);
@@ -119,14 +119,15 @@ fn command_proc(command: &str, data_filepath: &String, version: f32) {
                     println!("index: encrypt an entry"); 
                     index::index_table_display(&mutex_guard);
                     let filepath = input::input_handle("new file path",false);
-                    file::create_file(&filepath);
+                    file::create_file(&filepath, true);
                     let success = gpg::gpg_encrypt_handle(&input::password_input_handle(), &filepath);
                     match success {
                         true => {
+                                let new_filepath = filepath.clone() + ".gpg";
                                 let index_item = index::IndexItem::new(
                                 mutex_guard.len(),
-                                filepath.clone() + ".gpg",
-                                file::validate_path_desc(filepath.clone())
+                                &new_filepath,
+                                &file::validate_path_desc(&filepath)
                             );
                             mutex_guard.push(index_item);
                             file::overwrite_file(data_filepath, &mutex_guard);
@@ -214,7 +215,7 @@ fn boot_sequence(data_filepath: &String) {
             load_array(data_filepath, mutex_guard);
             println!("welcome to memoryspace");
             if !(file::validate_file_bool(data_filepath)) {
-                file::create_file(data_filepath);
+                file::create_file(data_filepath, true);
             }
         }
         Err(error) => panic!("panic! table display error: {:?}", error)
