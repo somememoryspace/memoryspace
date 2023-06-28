@@ -1,7 +1,7 @@
 use std::process::Command;
 use std::str;
 
-pub fn gpg_decrypt_handle(passphrase: String, filepath: String) -> bool {
+pub fn gpg_decrypt_handle(passphrase: &String, filepath: &String) -> bool {
     if !(filepath.contains(".gpg")) {
         println!("err: attempting to decrypt a non gpg instance.");
         return false;
@@ -26,7 +26,7 @@ pub fn gpg_decrypt_handle(passphrase: String, filepath: String) -> bool {
     return true;
 }
 
-pub fn gpg_encrypt_handle(password: String, filepath: String) -> bool {
+pub fn gpg_encrypt_handle(password: &String, filepath: &String) -> bool {
     let run_command = Command::new("sh")
     .arg("-c")
     .arg(format!("gpg -c --batch --pinentry-mode loopback --cipher-algo AES256 --passphrase {password} {filepath}"))
