@@ -22,8 +22,13 @@ lazy_static! {
 
 fn load_array(data_filepath: &String, mut mutex_guard: MutexGuard<'_,Vec<IndexItem>>) {
     mutex_guard.clear(); //clear previous
+<<<<<<< HEAD
     let loaded_file: Vec<String> = fs::read_to_string(data_filepath)
     .expect("err: array load error")
+=======
+    let loaded_file: Vec<String> = fs::read_to_string(&data_filepath)
+    .expect("panic! load error")
+>>>>>>> 5ea116b (refactor)
     .split("\n")
     .map(|line| line.to_string())
     .collect();
@@ -132,7 +137,10 @@ fn command_proc(command: &str, data_filepath: &String, version: f32) {
                             mutex_guard.push(index_item);
                             file::overwrite_file(data_filepath, &mutex_guard);
                             load_array(data_filepath, mutex_guard);
+<<<<<<< HEAD
                             file::delete_temp_file(&filepath);
+=======
+>>>>>>> 5ea116b (refactor)
                             return;
                         },
                         false => {
