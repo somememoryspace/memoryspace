@@ -1,2 +1,4 @@
 data_filepath: "./data/data.ms"
 configuration_filepath: "./config/config.yml"
+gpg_binary_path: "/usr/bin/gpg"
+temp_file_output_default: false

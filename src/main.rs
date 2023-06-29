@@ -6,7 +6,6 @@ use lazy_static::lazy_static;
 use std::sync::Mutex;
 use std::sync::MutexGuard;
 use crate::index::IndexItem;
-use crate::file::Configuration;
 
 use input::clear_screen;
 
@@ -227,13 +226,29 @@ fn boot_sequence(data_filepath: &String, configuration_filepath: &String) {
 }
 
 fn main() {
-    let configuration = file::Configuration::new(
-            &String::from("./data/data.ms"),
-           &String::from("./config/config.yml")
-    );
-    boot_sequence(&configuration.get_data_filepath(), &configuration.get_configuration_path());
-    loop {
-        let command: String = input::input_handle("memoryspace", true);
-        command_proc(&command, &configuration.get_data_filepath(), VERSION);
-    }
+    let previous_config: bool = input::confirmation_bool(&String::from("load previous config?"));
+    match previous_config {
+        false => {
+            let configuration = file::Configuration::new(
+                &String::from("./data/data.ms"),
+               &String::from("./config/config.yml"),
+               &String::from("/usr/bin/gpg"),
+               &false,
+            );
+            boot_sequence(&configuration.get_data_filepath(), &configuration.get_configuration_path());
+            loop {
+                let command: String = input::input_handle("memoryspace", true);
+                command_proc(&command, &configuration.get_data_filepath(), VERSION);
+            }
+        },
+        true => {
+            let configuration_filepath: String = input::input_handle("previous configuration filepath", true);
+            let configuration = file::Configuration::parse_from_file(&configuration_filepath);
+            boot_sequence(&configuration.get_data_filepath(), &configuration.get_configuration_path());
+            loop {
+                let command: String = input::input_handle("memoryspace", true);
+                command_proc(&command, &configuration.get_data_filepath(), VERSION);
+            }
+        }
+    };
 }
