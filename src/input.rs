@@ -32,15 +32,20 @@ pub fn input_handle(prompt: &str, lowercase: bool) -> String {
     }
 }
 
-pub fn input_handle_integer() -> usize {
+pub fn input_handle_integer(array_bounds_limiter: &usize) -> usize {
     let base_input = input_handle("enter a number:", false);
     match &base_input.parse::<usize>() {
         Err(error) => {
             println!("err: invalid entry. {}", error);
-            let value = input_handle_integer();
+            let value = input_handle_integer(array_bounds_limiter);
             return value;
         },
         Ok(value) => {
+            if array_bounds_limiter < value {
+                println!("err: incorrect value");
+                let value = input_handle_integer(array_bounds_limiter);
+                return value;
+            }
             return *value;
         }
     }
