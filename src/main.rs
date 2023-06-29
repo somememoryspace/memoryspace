@@ -89,7 +89,7 @@ fn command_prompt() {
 fn command_proc(command: &str, data_filepath: &String, version: f32) {
     println!();
     let result = ARRAY.lock();
-    let _result = match result {
+    match result {
         Ok(mut mutex_guard) => {
             match command {
                 "index-list" => {
@@ -125,6 +125,10 @@ fn command_proc(command: &str, data_filepath: &String, version: f32) {
                     file::create_file(&filepath, true);
                     let success = gpg::gpg_encrypt_handle(&passphrase, &filepath);
                     match success {
+                        false => {
+                            println!("err: encrypt process failed");
+                            return;
+                        },
                         true => {
                                 let new_filepath = filepath.clone() + ".gpg";
                                 let index_item = index::IndexItem::new(
@@ -138,10 +142,6 @@ fn command_proc(command: &str, data_filepath: &String, version: f32) {
                             file::delete_temp_file(&filepath);
                             return;
                         },
-                        false => {
-                            println!("err: encrypt process failed");
-                            return;
-                        }
                     }
 
                 },
@@ -212,7 +212,8 @@ fn command_proc(command: &str, data_filepath: &String, version: f32) {
 
 fn boot_sequence(data_filepath: &String, configuration_filepath: &String) {
     let result = ARRAY.lock();
-    let _result = match result {
+    match result {
+        Err(error) => panic!("panic! table display error: {:?}", error),
         Ok(mutex_guard) => {
             clear_screen();
             load_array(data_filepath, mutex_guard);
@@ -224,15 +225,14 @@ fn boot_sequence(data_filepath: &String, configuration_filepath: &String) {
                 file::create_file(configuration_filepath, true);
             }
         }
-        Err(error) => panic!("panic! table display error: {:?}", error)
     };
 }
 
 fn thread_main(configuration: &Configuration) {
-    boot_sequence(&configuration.get_data_filepath(), &configuration.get_configuration_path());
+    boot_sequence(configuration.get_data_filepath(), configuration.get_configuration_path());
     loop {
         let command: String = input::input_handle("memoryspace", true);
-        command_proc(&command, &configuration.get_data_filepath(), VERSION);
+        command_proc(&command, configuration.get_data_filepath(), VERSION);
     }
 }
 

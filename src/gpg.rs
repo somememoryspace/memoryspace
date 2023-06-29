@@ -11,19 +11,20 @@ pub fn gpg_decrypt_handle(passphrase: &String, filepath: &String) -> bool {
     .arg(format!("gpg --batch --pinentry-mode loopback --cipher-algo AES256 --passphrase {passphrase} {filepath}"))
     .output();
     let result = match run_command {
-        Ok(output) => output.stderr,
-        Err(error) => panic!("panic! error running gpg: {:?}", error)    
+        Err(error) => panic!("panic! error running gpg: {:?}", error),
+        Ok(output) => output.stderr,   
     };
-    let string = match str::from_utf8(&result) {
-        Ok(value) => value,
+    match str::from_utf8(&result) {
         Err(error) => panic!("panic! invalid utf-8 {}", error),
+        Ok(value) => {
+            if value.contains("gpg: decryption failed: Bad session key") {
+                println!("err: decryption error. bad password.");
+                return false;
+            }
+            println!("decrypt: complete.");
+            return true;
+        }
     };
-    if string.contains("gpg: decryption failed: Bad session key") {
-        println!("err: decryption error. bad password.");
-        return false;
-    }
-    println!("decrypt: complete.");
-    return true;
 }
 
 pub fn gpg_encrypt_handle(password: &String, filepath: &String) -> bool {
@@ -31,10 +32,11 @@ pub fn gpg_encrypt_handle(password: &String, filepath: &String) -> bool {
     .arg("-c")
     .arg(format!("gpg -c --batch --pinentry-mode loopback --cipher-algo AES256 --passphrase {password} {filepath}"))
     .output();
-    let _result = match run_command {
-        Ok(output) => output.stderr,
-        Err(error) => panic!("panic! error running gpg: {:?}", error)    
+    match run_command {
+        Err(error) => panic!("panic! error running gpg: {:?}", error),
+        Ok(_) => {
+            println!("encrypt: complete.");
+            return true;
+        } 
     };
-    println!("encrypt: complete.");
-    return true;
 }

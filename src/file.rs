@@ -35,7 +35,7 @@ impl Configuration {
     }
     pub fn parse_from_file(configuration_filepath: &String) -> Self {
         let open_configuration = std::fs::File::open(&configuration_filepath);
-        let _open_configuration = match open_configuration {
+        match open_configuration {
             Err(_error) => panic!("panic! configuration file load error"),
             Ok(file) => {
                 let scrape_configuration: Configuration = serde_yaml::from_reader(&file).expect("panic! file parse error");
@@ -51,7 +51,7 @@ pub fn create_file(filepath: &String, create_new: bool) {
     filepath_vec.pop();
     let directory_tree_for_file = filepath_vec.iter().map(|x| x.to_string() + "/").collect::<String>();
     let creation = fs::create_dir_all(&directory_tree_for_file);
-    let _creation = match creation {
+    match creation {
         Err(error) => panic!("panic! creating directory error: {:?}", error),
         Ok(()) => {
             let init_file = File::create(filepath);
@@ -119,8 +119,8 @@ pub fn delete_temp_file(filepath: &String) {
 pub fn output_temp_file(filepath: &String) {
     let init_file = fs::read_to_string(filepath);
     let result = match init_file {
+        Err(error) => panic!("panic! read file error: {:?}", error),
         Ok(file) => file,
-        Err(error) => panic!("panic! read file error: {:?}", error)
     };
     println!("{}",result);
 }
@@ -131,14 +131,14 @@ pub fn overwrite_file(filepath: &String, mutex_guard: &MutexGuard<'_,Vec<IndexIt
     .append(true)
     .open(filepath);
     let mut loaded_file = match index_file_load_result {
-        Ok(file) => file,
-        Err(error) => panic!("panic! opening file error: {:?}", error)    
+        Err(error) => panic!("panic! opening file error: {:?}", error),
+        Ok(file) => file,   
     };
     for item in mutex_guard.iter() {
         let write_result = writeln!(loaded_file, "{}",item.get_system_path());
-        let _result = match  write_result {
-            Ok(()) => (),
-            Err(error) => panic!("panic! writing file error: {:?}", error)    
+        match  write_result {
+            Err(error) => panic!("panic! writing file error: {:?}", error),
+            Ok(()) => (),   
         };
     }
 }

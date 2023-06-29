@@ -5,11 +5,10 @@ use rpassword;
 
 pub fn password_input_handle() -> String {
     let password = rpassword::prompt_password("password: ");
-    let password = match password {
-        Ok(string) => string,
+    match password {
         Err(error) => panic!("panic! with input: {:?}", error),
+        Ok(string) => return string,
     };
-    return password;
 }
 
 pub fn input_handle(prompt: &str, lowercase: bool) -> String {
@@ -21,8 +20,8 @@ pub fn input_handle(prompt: &str, lowercase: bool) -> String {
         stdout().flush().ok();
         let stdin_result = io::stdin().read_line(&mut input_string);
         let _stdin = match stdin_result {
-            Ok(usize) => usize,
             Err(error) => panic!("panic! with input: {:?}", error),
+            Ok(usize) => usize,
         };
         break;
     }
@@ -41,8 +40,11 @@ pub fn input_handle_integer(array_bounds_limiter: &usize) -> usize {
             return value;
         },
         Ok(value) => {
+            if array_bounds_limiter.eq(&0) {
+                return *value;
+            }
             if array_bounds_limiter < value {
-                println!("err: incorrect value");
+                println!("err: invalid entry");
                 let value = input_handle_integer(array_bounds_limiter);
                 return value;
             }
@@ -54,9 +56,9 @@ pub fn input_handle_integer(array_bounds_limiter: &usize) -> usize {
 pub fn clear_screen() {
     stdout().flush().ok();
     let clear_result = Command::new("clear").status();
-    let _clear = match clear_result {
+    match clear_result {
+        Err(error) => panic!("panic! stdout error: {:?}", error),
         Ok(exit) => exit,
-        Err(error) => panic!("panic! stdout error: {:?}", error)
     };
 }
 
