@@ -145,9 +145,9 @@ fn command_proc(command: &str, data_filepath: &String, version: f32) {
                 "index-decrypt" => {
                     println!("index: decrypt an entry");
                     index::index_table_display(&mutex_guard);
-                    let temp_file_bool = input::confirmation_bool(&String::from("produce output file?"));
                     let selection = input::input_handle_integer();
                     let filepath = mutex_guard.get(selection);
+                    let temp_file_bool = input::confirmation_bool(&String::from("produce output file?"));
                     match filepath {
                         None => panic!("panic! array indexing error"),
                         Some(index_item) => {
