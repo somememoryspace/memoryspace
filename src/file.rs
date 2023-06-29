@@ -5,20 +5,39 @@ use std::io::Write;
 use std::fs::OpenOptions;
 use std::sync::MutexGuard;
 use serde::{Serialize, Deserialize};
+use serde_yaml::{self};
 
 use crate::index::IndexItem;
 
-struct Configuration {
+#[derive(Serialize, Deserialize, PartialEq, Debug)]
+pub struct Configuration {
     data_filepath: String,
-    configuration_path: String
+    configuration_filepath: String,
 }
 
 impl Configuration {
-    pub fn new(data_filepath: &String, configuration_path: &String) -> Self {
+    pub fn new(data_filepath: &String, configuration_filepath: &String) -> Self {
         return Configuration { 
             data_filepath: data_filepath.to_owned(),
-            configuration_path: configuration_path.to_owned(),
+            configuration_filepath: configuration_filepath.to_owned(),
         }
+    }
+    pub fn get_data_filepath(&self) -> &String {
+        return &self.data_filepath;
+    }
+    pub fn get_configuration_path(&self) -> &String {
+        return &self.configuration_filepath;
+    }
+    pub fn parse_from_file(configuration_filepath: &String) -> Self {
+        let open_configuration = std::fs::File::open(&configuration_filepath);
+        let _open_configuration = match open_configuration {
+            Err(_error) => panic!("panic! configuration file load error"),
+            Ok(file) => {
+                let scrape_configuration: Configuration = serde_yaml::from_reader(&file).expect("panic! file parse error");
+                return scrape_configuration;
+            }
+        };
+        
     }
 }
 

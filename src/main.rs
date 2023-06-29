@@ -6,6 +6,7 @@ use lazy_static::lazy_static;
 use std::sync::Mutex;
 use std::sync::MutexGuard;
 use crate::index::IndexItem;
+use crate::file::Configuration;
 
 use input::clear_screen;
 
@@ -207,7 +208,7 @@ fn command_proc(command: &str, data_filepath: &String, version: f32) {
 
 }
 
-fn boot_sequence(data_filepath: &String) {
+fn boot_sequence(data_filepath: &String, configuration_filepath: &String) {
     let result = ARRAY.lock();
     let _result = match result {
         Ok(mutex_guard) => {
@@ -217,16 +218,22 @@ fn boot_sequence(data_filepath: &String) {
             if !(file::validate_file_bool(data_filepath)) {
                 file::create_file(data_filepath, true);
             }
+            if !(file::validate_file_bool(configuration_filepath)) {
+                file::create_file(configuration_filepath, true);
+            }
         }
         Err(error) => panic!("panic! table display error: {:?}", error)
     };
 }
 
 fn main() {
-    let data_filepath = String::from("./data/data.ms");
-    boot_sequence(&data_filepath);
+    let configuration = file::Configuration::new(
+            &String::from("./data/data.ms"),
+           &String::from("./config/config.yml")
+    );
+    boot_sequence(&configuration.get_data_filepath(), &configuration.get_configuration_path());
     loop {
         let command: String = input::input_handle("memoryspace", true);
-        command_proc(&command, &data_filepath, VERSION);
+        command_proc(&command, &configuration.get_data_filepath(), VERSION);
     }
 }

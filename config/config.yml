@@ -1,0 +1,2 @@
+data_filepath: "./data/data.ms"
+configuration_filepath: "./config/config.yml"
