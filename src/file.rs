@@ -6,6 +6,7 @@ use std::fs::OpenOptions;
 use std::sync::MutexGuard;
 use serde::{Serialize, Deserialize};
 use serde_yaml::{self};
+use file_shred;
 
 use crate::index::IndexItem;
 
@@ -103,11 +104,16 @@ pub fn validate_path_desc(filepath: &String) -> String {
 }
 
 pub fn delete_temp_file(filepath: &String) {
-    let init_file = fs::remove_file(filepath);
-    let _result = match init_file {
-        Ok(()) => (),
-        Err(error) => panic!("panic! delete file error: {:?}", error)
-    };
+    let verbosity = file_shred::Verbosity::Quiet;
+    let shared_config = file_shred::ShredConfig::non_interactive(
+        vec!(&filepath), 
+        verbosity, 
+        false, 
+        10, 
+        10,
+    );
+    let _shredder = file_shred::shred(&shared_config);
+
 }
 
 pub fn output_temp_file(filepath: &String) {
