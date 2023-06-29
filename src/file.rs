@@ -4,8 +4,23 @@ use std::path::Path;
 use std::io::Write;
 use std::fs::OpenOptions;
 use std::sync::MutexGuard;
+use serde::{Serialize, Deserialize};
 
 use crate::index::IndexItem;
+
+struct Configuration {
+    data_filepath: String,
+    configuration_path: String
+}
+
+impl Configuration {
+    pub fn new(data_filepath: &String, configuration_path: &String) -> Self {
+        return Configuration { 
+            data_filepath: data_filepath.to_owned(),
+            configuration_path: configuration_path.to_owned(),
+        }
+    }
+}
 
 pub fn create_file(filepath: &String, create_new: bool) {
     let mut filepath_vec: Vec<String> = filepath.split("/").map(|s| s.to_string()).collect();
