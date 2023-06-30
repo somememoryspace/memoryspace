@@ -55,6 +55,8 @@ fn command_prompt() {
         "   - decrypt entry from the index list",
         "index-encrypt",
         "   - encrypt new entry to the index list",
+        "index-discover",
+        "   - discover gpg files using a path",
     ];
     let sys = vec![
         "sys-version",
@@ -185,6 +187,15 @@ fn command_proc(command: &str, data_filepath: &String, version: f32) {
                         },
                     }
                 },
+                "index-discover" => {
+                    println!("index: discover files against a provided path");
+                    let test = file::discover_files(
+                        &String::from("/home/administrator/github"), 
+                        &String::from("/**/*.gpg")
+                    );
+                    println!("{:?}", test);
+
+                }   
                 "sys-version" => {
                     println!("sys: version {}", version); 
                 },

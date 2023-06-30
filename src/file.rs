@@ -6,6 +6,7 @@ use std::fs::OpenOptions;
 use std::sync::MutexGuard;
 use serde::{Serialize, Deserialize};
 use serde_yaml::{self};
+use glob::{MatchOptions, glob_with};
 use file_shred;
 
 use crate::index::IndexItem;
@@ -141,4 +142,29 @@ pub fn overwrite_file(filepath: &String, mutex_guard: &MutexGuard<'_,Vec<IndexIt
             Ok(()) => (),   
         };
     }
+}
+
+pub fn discover_files(directory: &String, pattern: &String) -> Vec<String> {
+   let mut discovered_files = vec![String::from("")];
+   let pattern_complete = directory.to_owned() + pattern.to_owned().as_str();
+   let traverse_options = MatchOptions {
+        case_sensitive: false, 
+        require_literal_leading_dot: false, 
+        require_literal_separator: false,
+   };
+   for detection in glob_with(&pattern_complete.as_str(),traverse_options).expect("err: error on reading glob pattern") {
+        match detection {
+            Ok(found_path) => {
+                discovered_files.push(found_path.display().to_string())
+            },
+            Err(_error) => {
+                println!("err: during discover of files process");
+                continue;
+            }
+        };
+   }
+   if discovered_files[0].len() == 0 {
+    discovered_files.remove(0);
+   }
+   return discovered_files;
 }
