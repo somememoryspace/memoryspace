@@ -5,3 +5,4 @@
 – traits
 – multiplex index commands
 – cleanup references
+- optimize structs

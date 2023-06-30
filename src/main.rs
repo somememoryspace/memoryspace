@@ -6,7 +6,7 @@ use file::Configuration;
 use lazy_static::lazy_static;
 use std::sync::Mutex;
 use std::sync::MutexGuard;
-use crate::index::IndexItem;
+use crate::index::{IndexItem, IndexItemVolatile};
 
 use input::clear_screen;
 
@@ -23,11 +23,7 @@ lazy_static! {
 
 fn load_array(data_filepath: &String, mut mutex_guard: MutexGuard<'_,Vec<IndexItem>>) {
     mutex_guard.clear(); //clear previous
-    let loaded_file: Vec<String> = fs::read_to_string(data_filepath)
-    .expect("err: array load error")
-    .split("\n")
-    .map(|line| line.to_string())
-    .collect();
+    let loaded_file: Vec<String> = file::read_paths_list(&data_filepath);
     for (i,val) in loaded_file.iter().enumerate() {
         if val.len() == 0 {
             continue;
@@ -189,12 +185,16 @@ fn command_proc(command: &str, data_filepath: &String, version: f32) {
                 },
                 "index-discover" => {
                     println!("index: discover files against a provided path");
-                    let test = file::discover_files(
-                        &String::from("/home/administrator/github"), 
+                    let discovery = file::discover_files(
+                        &input::input_handle("filepath to discover",false), 
                         &String::from("/**/*.gpg")
                     );
-                    println!("{:?}", test);
-
+                    if &discovery.len() == &0 {
+                        println!("err: no matches found");
+                        return;
+                    }
+                    let mut volatile_list: Vec<IndexItemVolatile> = index::produce_volatile_list(&discovery);
+                    index::index_table_display_volatile(&volatile_list);
                 }   
                 "sys-version" => {
                     println!("sys: version {}", version); 

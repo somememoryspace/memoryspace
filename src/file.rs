@@ -104,6 +104,15 @@ pub fn validate_path_desc(filepath: &String) -> String {
     return "dead".to_string();
 }
 
+pub fn read_paths_list(filepath: &String) -> Vec<String> {
+    let vector: Vec<String> = fs::read_to_string(filepath)
+        .expect("err: array load error")
+        .split("\n")
+        .map(|line| line.to_string())
+        .collect();
+    return vector;
+}
+
 pub fn delete_temp_file(filepath: &String) {
     let verbosity = file_shred::Verbosity::Quiet;
     let shared_config = file_shred::ShredConfig::non_interactive(
@@ -145,7 +154,7 @@ pub fn overwrite_file(filepath: &String, mutex_guard: &MutexGuard<'_,Vec<IndexIt
 }
 
 pub fn discover_files(directory: &String, pattern: &String) -> Vec<String> {
-   let mut discovered_files = vec![String::from("")];
+   let mut discovered_files = vec![];
    let pattern_complete = directory.to_owned() + pattern.to_owned().as_str();
    let traverse_options = MatchOptions {
         case_sensitive: false, 
@@ -162,9 +171,6 @@ pub fn discover_files(directory: &String, pattern: &String) -> Vec<String> {
                 continue;
             }
         };
-   }
-   if discovered_files[0].len() == 0 {
-    discovered_files.remove(0);
    }
    return discovered_files;
 }
