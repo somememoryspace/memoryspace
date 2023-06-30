@@ -187,7 +187,8 @@ fn command_proc(command: &str, data_filepath: &String, version: f32) {
                     println!("index: discover files against a provided path");
                     let discovery = file::discover_files(
                         &input::input_handle("filepath to discover",false), 
-                        &String::from("/**/*.gpg")
+                        &String::from("/**/*.gpg"),
+                        &data_filepath,
                     );
                     if &discovery.len() == &0 {
                         println!("err: no matches found");

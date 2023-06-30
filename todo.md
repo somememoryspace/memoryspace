@@ -6,3 +6,4 @@
 – multiplex index commands
 – cleanup references
 - optimize structs
+- move comparisons to hashset

@@ -138,8 +138,8 @@ pub fn output_temp_file(filepath: &String) {
 pub fn overwrite_file(filepath: &String, mutex_guard: &MutexGuard<'_,Vec<IndexItem>>) {
     create_file(filepath, false);
     let index_file_load_result = OpenOptions::new()
-    .append(true)
-    .open(filepath);
+        .append(true)
+        .open(filepath);
     let mut loaded_file = match index_file_load_result {
         Err(error) => panic!("panic! opening file error: {:?}", error),
         Ok(file) => file,   
@@ -153,15 +153,16 @@ pub fn overwrite_file(filepath: &String, mutex_guard: &MutexGuard<'_,Vec<IndexIt
     }
 }
 
-pub fn discover_files(directory: &String, pattern: &String) -> Vec<String> {
-   let mut discovered_files = vec![];
-   let pattern_complete = directory.to_owned() + pattern.to_owned().as_str();
-   let traverse_options = MatchOptions {
+pub fn discover_files(directory: &String, pattern: &String, data_filepath: &String) -> Vec<String> {
+    let temp_list: Vec<String> = read_paths_list(&data_filepath);
+    let mut discovered_files = vec![];
+    let pattern_complete = directory.to_owned() + pattern.to_owned().as_str();
+    let traverse_options = MatchOptions {
         case_sensitive: false, 
         require_literal_leading_dot: false, 
         require_literal_separator: false,
-   };
-   for detection in glob_with(&pattern_complete.as_str(),traverse_options).expect("err: error on reading glob pattern") {
+    };
+    for detection in glob_with(&pattern_complete.as_str(),traverse_options).expect("err: error on reading glob pattern") {
         match detection {
             Ok(found_path) => {
                 discovered_files.push(found_path.display().to_string())
