@@ -1,12 +1,12 @@
+use std::collections::HashSet;
 use std::io::{stdout, Write};
 use std::process::exit;
 use std::str;
-use std::fs;
 use file::Configuration;
 use lazy_static::lazy_static;
 use std::sync::Mutex;
 use std::sync::MutexGuard;
-use crate::index::{IndexItem, IndexItemVolatile};
+use crate::index::{IndexItemVolatile};
 
 use input::clear_screen;
 
@@ -18,11 +18,16 @@ mod file;
 const VERSION: f32 = 1.0;
 
 lazy_static! {
-    static ref ARRAY: Mutex<Vec<index::IndexItem>> = Mutex::new(vec![]);
+    static ref APPDATA: Mutex<(Vec<index::IndexItem>,HashSet<String>)> = Mutex::new(
+        (   
+            Vec::new(),
+            HashSet::new()
+        )
+    );
 }
 
-fn load_array(data_filepath: &String, mut mutex_guard: MutexGuard<'_,Vec<IndexItem>>) {
-    mutex_guard.clear(); //clear previous
+fn load_data(data_filepath: &String, mut mutex_guard: MutexGuard<'_,(Vec<index::IndexItem>,HashSet<String>)>) {
+    mutex_guard.0.clear(); //clear previous
     let loaded_file: Vec<String> = file::read_paths_list(&data_filepath);
     for (i,val) in loaded_file.iter().enumerate() {
         if val.len() == 0 {
@@ -33,7 +38,8 @@ fn load_array(data_filepath: &String, mut mutex_guard: MutexGuard<'_,Vec<IndexIt
                 &val,
                 &file::validate_path_desc(&val)
             );
-            mutex_guard.push(index_item);
+            mutex_guard.0.push(index_item);
+            mutex_guard.1.insert(val.to_owned());
         }
     }
 }
@@ -86,7 +92,7 @@ fn command_prompt() {
 
 fn command_proc(command: &str, data_filepath: &String, version: f32) {
     println!();
-    let result = ARRAY.lock();
+    let result = APPDATA.lock();
     match result {
         Ok(mut mutex_guard) => {
             match command {
@@ -99,21 +105,25 @@ fn command_proc(command: &str, data_filepath: &String, version: f32) {
                     index::index_table_display(&mutex_guard);
                     let filepath = input::input_handle("new file path",false);
                     let index_item = index::IndexItem::new(
-                        mutex_guard.len(),
+                        mutex_guard.0.len(),
                         &filepath,
                         &file::validate_path_desc(&filepath),
                     );
-                    mutex_guard.push(index_item);
+                    mutex_guard.0.push(index_item);
+                    mutex_guard.1.insert(filepath);
                     file::overwrite_file(data_filepath, &mutex_guard);
-                    load_array(data_filepath, mutex_guard);
+                    load_data(data_filepath, mutex_guard);
                 },
                 "index-remove" => {
                     println!("index: removing entry");
                     index::index_table_display(&mutex_guard);
-                    let array_bounds_limiter: usize = mutex_guard.len() - 1;
-                    mutex_guard.remove(input::input_handle_integer(&array_bounds_limiter));
+                    let array_bounds_limiter: usize = &mutex_guard.0.len() - 1;
+                    let selection = input::input_handle_integer(&array_bounds_limiter);
+                    let selection_path = &mutex_guard.0[selection].get_system_path().to_string();
+                    mutex_guard.1.remove(selection_path);
+                    mutex_guard.0.remove(selection);
                     file::overwrite_file(data_filepath, &mutex_guard);
-                    load_array(data_filepath, mutex_guard);
+                    load_data(data_filepath, mutex_guard);
                 },
                 "index-encrypt" => {
                     println!("index: encrypt an entry"); 
@@ -130,13 +140,14 @@ fn command_proc(command: &str, data_filepath: &String, version: f32) {
                         true => {
                                 let new_filepath = filepath.clone() + ".gpg";
                                 let index_item = index::IndexItem::new(
-                                mutex_guard.len(),
+                                mutex_guard.0.len(),
                                 &new_filepath,
                                 &file::validate_path_desc(&filepath)
-                            );
-                            mutex_guard.push(index_item);
+                                );
+                            mutex_guard.0.push(index_item);
+                            mutex_guard.1.insert(new_filepath);
                             file::overwrite_file(data_filepath, &mutex_guard);
-                            load_array(data_filepath, mutex_guard);
+                            load_data(data_filepath, mutex_guard);
                             file::delete_temp_file(&filepath);
                             return;
                         },
@@ -146,9 +157,9 @@ fn command_proc(command: &str, data_filepath: &String, version: f32) {
                 "index-decrypt" => {
                     println!("index: decrypt an entry");
                     index::index_table_display(&mutex_guard);
-                    let array_bounds_limiter: usize = mutex_guard.len() - 1;
+                    let array_bounds_limiter: usize = mutex_guard.0.len() - 1;
                     let selection = input::input_handle_integer(&array_bounds_limiter);
-                    let filepath = mutex_guard.get(selection);
+                    let filepath = mutex_guard.0.get(selection);
                     let temp_file_bool = input::confirmation_bool(&String::from("produce output file?"));
                     match filepath {
                         None => panic!("panic! array indexing error"),
@@ -188,13 +199,13 @@ fn command_proc(command: &str, data_filepath: &String, version: f32) {
                     let discovery = file::discover_files(
                         &input::input_handle("filepath to discover",false), 
                         &String::from("/**/*.gpg"),
-                        &data_filepath,
+                        &mutex_guard.1,
                     );
                     if &discovery.len() == &0 {
                         println!("err: no matches found");
                         return;
                     }
-                    let mut volatile_list: Vec<IndexItemVolatile> = index::produce_volatile_list(&discovery);
+                    let volatile_list: Vec<IndexItemVolatile> = index::produce_volatile_list(&discovery);
                     index::index_table_display_volatile(&volatile_list);
                 }   
                 "sys-version" => {
@@ -223,12 +234,12 @@ fn command_proc(command: &str, data_filepath: &String, version: f32) {
 }
 
 fn boot_sequence(data_filepath: &String, configuration_filepath: &String) {
-    let result = ARRAY.lock();
+    let result = APPDATA.lock();
     match result {
         Err(error) => panic!("panic! table display error: {:?}", error),
         Ok(mutex_guard) => {
             clear_screen();
-            load_array(data_filepath, mutex_guard);
+            load_data(data_filepath, mutex_guard);
             println!("welcome to memoryspace");
             if !(file::validate_file_bool(data_filepath)) {
                 file::create_file(data_filepath, true);

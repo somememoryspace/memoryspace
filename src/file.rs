@@ -1,14 +1,14 @@
-use std::fs;
+use std::{fs};
 use std::fs::File;
 use std::path::Path;
 use std::io::Write;
 use std::fs::OpenOptions;
 use std::sync::MutexGuard;
+use std::collections::HashSet;
 use serde::{Serialize, Deserialize};
 use serde_yaml::{self};
 use glob::{MatchOptions, glob_with};
 use file_shred;
-
 use crate::index::IndexItem;
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
@@ -135,7 +135,7 @@ pub fn output_temp_file(filepath: &String) {
     println!("{}",result);
 }
 
-pub fn overwrite_file(filepath: &String, mutex_guard: &MutexGuard<'_,Vec<IndexItem>>) {
+pub fn overwrite_file(filepath: &String, mutex_guard: &MutexGuard<'_,(Vec<IndexItem>,HashSet<String>)>) {
     create_file(filepath, false);
     let index_file_load_result = OpenOptions::new()
         .append(true)
@@ -144,7 +144,7 @@ pub fn overwrite_file(filepath: &String, mutex_guard: &MutexGuard<'_,Vec<IndexIt
         Err(error) => panic!("panic! opening file error: {:?}", error),
         Ok(file) => file,   
     };
-    for item in mutex_guard.iter() {
+    for item in mutex_guard.0.iter() {
         let write_result = writeln!(loaded_file, "{}",item.get_system_path());
         match  write_result {
             Err(error) => panic!("panic! writing file error: {:?}", error),
@@ -153,9 +153,8 @@ pub fn overwrite_file(filepath: &String, mutex_guard: &MutexGuard<'_,Vec<IndexIt
     }
 }
 
-pub fn discover_files(directory: &String, pattern: &String, data_filepath: &String) -> Vec<String> {
-    let temp_list: Vec<String> = read_paths_list(&data_filepath);
-    let mut discovered_files = vec![];
+pub fn discover_files(directory: &String, pattern: &String, master_hashset: &HashSet<String>) -> Vec<String> {
+    let mut discovered_files: Vec<String> = vec![];
     let pattern_complete = directory.to_owned() + pattern.to_owned().as_str();
     let traverse_options = MatchOptions {
         case_sensitive: false, 
@@ -165,13 +164,21 @@ pub fn discover_files(directory: &String, pattern: &String, data_filepath: &Stri
     for detection in glob_with(&pattern_complete.as_str(),traverse_options).expect("err: error on reading glob pattern") {
         match detection {
             Ok(found_path) => {
-                discovered_files.push(found_path.display().to_string())
+                discovered_files.push(found_path.display().to_string());
             },
             Err(_error) => {
                 println!("err: during discover of files process");
                 continue;
             }
         };
-   }
-   return discovered_files;
+    }
+    let mut uniques: Vec<String> = vec![];
+    for item in &discovered_files {
+        if master_hashset.contains(item) {
+            continue;
+        } else {
+            uniques.push(item.to_string());
+        }
+    }
+    return uniques;
 }

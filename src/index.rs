@@ -1,4 +1,6 @@
 use std::sync::MutexGuard;
+use std::collections::HashSet;
+use std::fs;
 use tabled::{Table, Tabled, settings::Style};
 
 use crate::file::{self, validate_path_desc};
@@ -57,15 +59,6 @@ impl IndexItemVolatile {
 
         }
     }
-    pub fn get_index(&self) -> &usize {
-        return &self.index;
-    }
-    pub fn get_system_path(&self) -> &String {
-        return &self.system_path;
-    }
-    pub fn get_system_linkage(&self) -> &String {
-        return &self.system_linkage;
-    }
 }
 
 pub fn produce_volatile_list(discovery: &Vec<String>) -> Vec<IndexItemVolatile> {
@@ -88,8 +81,8 @@ pub fn index_table_display_volatile(volatile_list: &Vec<IndexItemVolatile>) {
     println!();
 }
 
-pub fn index_table_display(mutex_guard: &MutexGuard<'_,Vec<IndexItem>>) {
-    let table = Table::new(mutex_guard.iter()).with(Style::psql()).to_string();
+pub fn index_table_display(mutex_guard: &MutexGuard<'_,(Vec<IndexItem>,HashSet<String>)>) {
+    let table = Table::new(mutex_guard.0.iter()).with(Style::psql()).to_string();
     println!();
     println!("{}", &table);
     println!();
