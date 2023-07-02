@@ -13,25 +13,15 @@ pub struct IndexItem {
     datapath: String,
 }
 
-#[derive(Tabled)]
-#[derive(Eq, PartialEq)]
-pub struct IndexItemVolatile {
-    index: usize,
-    system_path: String,
-    system_linkage: String,
-    file_type: String,
-    in_index: bool,
-}
-
 impl IndexItem {
-    pub fn new(index: usize, system_path: &String, system_linkage: &String) -> Self {
+    pub fn new(index: usize, system_path: &String, system_linkage: &String, data_filepath: &String) -> Self {
         return IndexItem { 
             index: index,
             system_path: system_path.to_owned(),
             filesize: file::get_filesize(system_path),
             system_linkage: system_linkage.to_owned(),
             file_type: file::filetype(system_path),
-            datapath: "./data/data.ms".to_string(),
+            datapath: data_filepath.to_owned(),
         }
     }
     pub fn get_system_path(&self) -> &String {
@@ -41,37 +31,19 @@ impl IndexItem {
         return &self.system_linkage;
     }
 }
-impl IndexItemVolatile {
-    pub fn new(index: usize, system_path: &String, system_linkage: &String) -> Self {
-        return IndexItemVolatile { 
-            index: index,
-            system_path: system_path.to_owned(),
-            system_linkage: system_linkage.to_owned(),
-            file_type: file::filetype(system_path),
-            in_index: false,
 
-        }
-    }
-}
-
-pub fn produce_volatile_list(discovery: &Vec<String>) -> Vec<IndexItemVolatile> {
-    let mut volatile_list: Vec<IndexItemVolatile> = vec![];
+pub fn produce_volatile_list(discovery: &Vec<String>) -> Vec<IndexItem> {
+    let mut volatile_list: Vec<IndexItem> = vec![];
     for (val, item) in discovery.iter().enumerate() {
-        let index_item_volatile = IndexItemVolatile::new(
+        let index_item_volatile = IndexItem::new(
             val.to_owned(),
             &item.to_owned(),
-            &validate_path_desc(&item)
+            &validate_path_desc(&item),
+            &String::from("not saved in datafile"),
         );
         volatile_list.push(index_item_volatile);
     }
     return volatile_list;
-}
-
-pub fn index_table_display_volatile(volatile_list: &Vec<IndexItemVolatile>) {
-    let table = Table::new(volatile_list.iter()).with(Style::psql()).to_string();
-    println!();
-    println!("{}", &table);
-    println!();
 }
 
 pub fn index_table_display(master_vector: &Vec<IndexItem>) {

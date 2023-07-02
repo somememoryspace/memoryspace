@@ -6,8 +6,7 @@ use file::Configuration;
 use lazy_static::lazy_static;
 use std::sync::Mutex;
 use std::sync::MutexGuard;
-use crate::index::{IndexItemVolatile};
-
+use crate::index::{IndexItem};
 use input::clear_screen;
 
 mod input;
@@ -36,7 +35,8 @@ fn load_data(data_filepath: &String, mut mutex_guard: MutexGuard<'_,(Vec<index::
             let index_item = index::IndexItem::new(
                 i,
                 &val,
-                &file::validate_path_desc(&val)
+                &file::validate_path_desc(&val),
+                data_filepath,
             );
             mutex_guard.0.push(index_item);
             mutex_guard.1.insert(val.to_owned());
@@ -108,6 +108,7 @@ fn command_proc(command: &str, data_filepath: &String, version: f32) {
                         mutex_guard.0.len(),
                         &filepath,
                         &file::validate_path_desc(&filepath),
+                        data_filepath,
                     );
                     mutex_guard.0.push(index_item);
                     mutex_guard.1.insert(filepath);
@@ -142,7 +143,8 @@ fn command_proc(command: &str, data_filepath: &String, version: f32) {
                                 let index_item = index::IndexItem::new(
                                 mutex_guard.0.len(),
                                 &new_filepath,
-                                &file::validate_path_desc(&filepath)
+                                &file::validate_path_desc(&filepath),
+                                data_filepath,
                                 );
                             mutex_guard.0.push(index_item);
                             mutex_guard.1.insert(new_filepath);
@@ -204,8 +206,26 @@ fn command_proc(command: &str, data_filepath: &String, version: f32) {
                         println!("err: no matches found");
                         return;
                     }
-                    let volatile_list: Vec<IndexItemVolatile> = index::produce_volatile_list(&discovery);
-                    index::index_table_display_volatile(&volatile_list);
+                    let volatile_list: Vec<IndexItem> = index::produce_volatile_list(&discovery);
+                    index::index_table_display(&volatile_list);
+                    let merge: bool = input::confirmation_bool(&String::from("merge to datafile?"));
+                    match merge {
+                        false => return,
+                        true => {
+                            for item in volatile_list {
+                                let new_index_item = index::IndexItem::new(
+                                    mutex_guard.0.len(),
+                                    item.get_system_path(),
+                                    item.get_system_linkage(),
+                                    data_filepath,
+                                );
+                                mutex_guard.0.push(new_index_item);
+                                mutex_guard.1.insert(item.get_system_path().to_owned());
+                                file::overwrite_file(data_filepath, &mutex_guard.0);
+                            }
+                            load_data(data_filepath, mutex_guard);
+                        }
+                    };
                 }   
                 "sys-version" => {
                     println!("sys: version {}", version); 
