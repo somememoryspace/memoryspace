@@ -34,17 +34,11 @@ impl IndexItem {
             datapath: "./data/data.ms".to_string(),
         }
     }
-    pub fn _get_index(&self) -> &usize {
-        return &self.index;
-    }
     pub fn get_system_path(&self) -> &String {
         return &self.system_path;
     }
     pub fn get_system_linkage(&self) -> &String {
         return &self.system_linkage;
-    }
-    pub fn _get_datapath(&self) -> &String {
-        return &self.datapath;
     }
 }
 impl IndexItemVolatile {

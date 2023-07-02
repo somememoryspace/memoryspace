@@ -152,7 +152,6 @@ fn command_proc(command: &str, data_filepath: &String, version: f32) {
                             return;
                         },
                     }
-
                 },
                 "index-decrypt" => {
                     println!("index: decrypt an entry");

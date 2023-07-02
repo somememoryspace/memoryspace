@@ -90,6 +90,17 @@ pub fn filetype(filepath: &String) -> String {
         return "key file".to_string();
     }
     return "other".to_string();
+}
+
+pub fn get_filesize(filepath: &String) -> String {
+    let metadata = fs::metadata(filepath);
+    match metadata {
+        Ok(metadata) => {
+            let size = metadata.len();
+            return size.to_string() + " Bytes";
+        },
+        Err(error) => panic!("panic! writing file error: {:?}", error),
+    };
 } 
 
 pub fn validate_file_bool(filepath: &String) -> bool {
@@ -183,17 +194,4 @@ pub fn discover_files(directory: &String, pattern: &String, master_hashset: &Has
         }
     }
     return uniques;
-}
-
-pub fn get_filesize(filepath: &String) -> String {
-    let metadata = fs::metadata(filepath);
-    match metadata {
-        Ok(metadata) => {
-            let size = metadata.len();
-            return size.to_string() + " Bytes";
-        },
-        Err(_error) => {
-            panic!("panic! error processing file size");
-        }
-    }
 }
