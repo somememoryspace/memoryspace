@@ -3,7 +3,6 @@ use std::fs::File;
 use std::path::Path;
 use std::io::Write;
 use std::fs::OpenOptions;
-use std::sync::MutexGuard;
 use std::collections::HashSet;
 use serde::{Serialize, Deserialize};
 use serde_yaml::{self};
@@ -87,6 +86,9 @@ pub fn filetype(filepath: &String) -> String {
     if filepath.contains(".gz") {
         return "gunzip archive".to_string();
     }
+    if filepath.contains(".key") {
+        return "key file".to_string();
+    }
     return "other".to_string();
 } 
 
@@ -135,7 +137,7 @@ pub fn output_temp_file(filepath: &String) {
     println!("{}",result);
 }
 
-pub fn overwrite_file(filepath: &String, mutex_guard: &MutexGuard<'_,(Vec<IndexItem>,HashSet<String>)>) {
+pub fn overwrite_file(filepath: &String, master_vector: &Vec<IndexItem>) {
     create_file(filepath, false);
     let index_file_load_result = OpenOptions::new()
         .append(true)
@@ -144,7 +146,7 @@ pub fn overwrite_file(filepath: &String, mutex_guard: &MutexGuard<'_,(Vec<IndexI
         Err(error) => panic!("panic! opening file error: {:?}", error),
         Ok(file) => file,   
     };
-    for item in mutex_guard.0.iter() {
+    for item in master_vector.iter() {
         let write_result = writeln!(loaded_file, "{}",item.get_system_path());
         match  write_result {
             Err(error) => panic!("panic! writing file error: {:?}", error),
@@ -181,4 +183,17 @@ pub fn discover_files(directory: &String, pattern: &String, master_hashset: &Has
         }
     }
     return uniques;
+}
+
+pub fn get_filesize(filepath: &String) -> String {
+    let metadata = fs::metadata(filepath);
+    match metadata {
+        Ok(metadata) => {
+            let size = metadata.len();
+            return size.to_string() + " Bytes";
+        },
+        Err(_error) => {
+            panic!("panic! error processing file size");
+        }
+    }
 }

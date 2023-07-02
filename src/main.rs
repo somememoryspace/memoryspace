@@ -98,11 +98,11 @@ fn command_proc(command: &str, data_filepath: &String, version: f32) {
             match command {
                 "index-list" => {
                     println!("index: printing current index file");
-                    index::index_table_display(&mutex_guard) 
+                    index::index_table_display(&mutex_guard.0) 
                 },
                 "index-add" => {
                     println!("index: adding new path entry to index"); 
-                    index::index_table_display(&mutex_guard);
+                    index::index_table_display(&mutex_guard.0);
                     let filepath = input::input_handle("new file path",false);
                     let index_item = index::IndexItem::new(
                         mutex_guard.0.len(),
@@ -111,23 +111,23 @@ fn command_proc(command: &str, data_filepath: &String, version: f32) {
                     );
                     mutex_guard.0.push(index_item);
                     mutex_guard.1.insert(filepath);
-                    file::overwrite_file(data_filepath, &mutex_guard);
+                    file::overwrite_file(data_filepath, &mutex_guard.0);
                     load_data(data_filepath, mutex_guard);
                 },
                 "index-remove" => {
                     println!("index: removing entry");
-                    index::index_table_display(&mutex_guard);
+                    index::index_table_display(&mutex_guard.0);
                     let array_bounds_limiter: usize = &mutex_guard.0.len() - 1;
                     let selection = input::input_handle_integer(&array_bounds_limiter);
                     let selection_path = &mutex_guard.0[selection].get_system_path().to_string();
                     mutex_guard.1.remove(selection_path);
                     mutex_guard.0.remove(selection);
-                    file::overwrite_file(data_filepath, &mutex_guard);
+                    file::overwrite_file(data_filepath, &mutex_guard.0);
                     load_data(data_filepath, mutex_guard);
                 },
                 "index-encrypt" => {
                     println!("index: encrypt an entry"); 
-                    index::index_table_display(&mutex_guard);
+                    index::index_table_display(&mutex_guard.0);
                     let filepath = input::input_handle("new file path",false);
                     let passphrase = input::password_input_handle();
                     file::create_file(&filepath, true);
@@ -146,7 +146,7 @@ fn command_proc(command: &str, data_filepath: &String, version: f32) {
                                 );
                             mutex_guard.0.push(index_item);
                             mutex_guard.1.insert(new_filepath);
-                            file::overwrite_file(data_filepath, &mutex_guard);
+                            file::overwrite_file(data_filepath, &mutex_guard.0);
                             load_data(data_filepath, mutex_guard);
                             file::delete_temp_file(&filepath);
                             return;
@@ -156,7 +156,7 @@ fn command_proc(command: &str, data_filepath: &String, version: f32) {
                 },
                 "index-decrypt" => {
                     println!("index: decrypt an entry");
-                    index::index_table_display(&mutex_guard);
+                    index::index_table_display(&mutex_guard.0);
                     let array_bounds_limiter: usize = mutex_guard.0.len() - 1;
                     let selection = input::input_handle_integer(&array_bounds_limiter);
                     let filepath = mutex_guard.0.get(selection);

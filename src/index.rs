@@ -1,6 +1,3 @@
-use std::sync::MutexGuard;
-use std::collections::HashSet;
-use std::fs;
 use tabled::{Table, Tabled, settings::Style};
 
 use crate::file::{self, validate_path_desc};
@@ -10,6 +7,7 @@ use crate::file::{self, validate_path_desc};
 pub struct IndexItem {
     index: usize,
     system_path: String,
+    filesize: String,
     system_linkage: String,
     file_type: String,
     datapath: String,
@@ -30,6 +28,7 @@ impl IndexItem {
         return IndexItem { 
             index: index,
             system_path: system_path.to_owned(),
+            filesize: file::get_filesize(system_path),
             system_linkage: system_linkage.to_owned(),
             file_type: file::filetype(system_path),
             datapath: "./data/data.ms".to_string(),
@@ -81,8 +80,8 @@ pub fn index_table_display_volatile(volatile_list: &Vec<IndexItemVolatile>) {
     println!();
 }
 
-pub fn index_table_display(mutex_guard: &MutexGuard<'_,(Vec<IndexItem>,HashSet<String>)>) {
-    let table = Table::new(mutex_guard.0.iter()).with(Style::psql()).to_string();
+pub fn index_table_display(master_vector: &Vec<IndexItem>) {
+    let table = Table::new(master_vector.iter()).with(Style::psql()).to_string();
     println!();
     println!("{}", &table);
     println!();
