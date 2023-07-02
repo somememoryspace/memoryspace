@@ -221,8 +221,8 @@ fn command_proc(command: &str, data_filepath: &String, version: f32) {
                                 );
                                 mutex_guard.0.push(new_index_item);
                                 mutex_guard.1.insert(item.get_system_path().to_owned());
-                                file::overwrite_file(data_filepath, &mutex_guard.0);
                             }
+                            file::overwrite_file(data_filepath, &mutex_guard.0);
                             load_data(data_filepath, mutex_guard);
                         }
                     };
