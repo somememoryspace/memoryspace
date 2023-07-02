@@ -127,7 +127,7 @@ fn command_proc(command: &str, data_filepath: &String, version: f32, configurati
                     load_data(data_filepath, mutex_guard);
                 },
                 "index-encrypt" => {
-                    println!("index: encrypt an entry"); 
+                    println!("index: encrypt a new entry"); 
                     index::index_table_display(&mutex_guard.0);
                     let filepath = input::input_handle("new file path",false);
                     let passphrase = input::password_input_handle();
