@@ -4,3 +4,4 @@
 /home/administrator/github/encryptiontest.txt.gpg
 /home/administrator/github/foo/encryptiontest.txt.gpg
 /home/administrator/github/memoryspace/abc.txt.gpg
+/home/administrator/github/memoryspace/test.txt.gpg

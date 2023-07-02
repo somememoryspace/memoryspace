@@ -30,6 +30,9 @@ impl Configuration {
     pub fn get_data_filepath(&self) -> &String {
         return &self.data_filepath;
     }
+    pub fn get_gpg_binary_path(&self) -> &String {
+        return &self.gpg_binary_path;
+    }
     pub fn get_configuration_path(&self) -> &String {
         return &self.configuration_filepath;
     }

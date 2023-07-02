@@ -90,7 +90,7 @@ fn command_prompt() {
     stdout().flush().ok();
 }
 
-fn command_proc(command: &str, data_filepath: &String, version: f32) {
+fn command_proc(command: &str, data_filepath: &String, version: f32, configuration: &Configuration) {
     println!();
     let result = APPDATA.lock();
     match result {
@@ -132,7 +132,10 @@ fn command_proc(command: &str, data_filepath: &String, version: f32) {
                     let filepath = input::input_handle("new file path",false);
                     let passphrase = input::password_input_handle();
                     file::create_file(&filepath, true);
-                    let success = gpg::gpg_encrypt_handle(&passphrase, &filepath);
+                    let success = gpg::gpg_encrypt_handle(
+                        &passphrase, 
+                        &filepath, 
+                        configuration.get_gpg_binary_path());
                     match success {
                         false => {
                             println!("err: encrypt process failed");
@@ -141,10 +144,10 @@ fn command_proc(command: &str, data_filepath: &String, version: f32) {
                         true => {
                                 let new_filepath = filepath.clone() + ".gpg";
                                 let index_item = index::IndexItem::new(
-                                mutex_guard.0.len(),
-                                &new_filepath,
-                                &file::validate_path_desc(&filepath),
-                                data_filepath,
+                                    mutex_guard.0.len(),
+                                    &new_filepath,
+                                    &file::validate_path_desc(&filepath),
+                                    data_filepath,
                                 );
                             mutex_guard.0.push(index_item);
                             mutex_guard.1.insert(new_filepath);
@@ -171,7 +174,11 @@ fn command_proc(command: &str, data_filepath: &String, version: f32) {
                                 println!("err: attempting to decrypt a dead file");
                                 return;
                             }
-                            let success = gpg::gpg_decrypt_handle(&input::password_input_handle(), &filepath);
+                            let success = gpg::gpg_decrypt_handle(
+                                &input::password_input_handle(), 
+                                &filepath, 
+                                configuration.get_gpg_binary_path()
+                            );
                             match success {
                                 false => {
                                     println!("err: decrypt process failed");
@@ -274,7 +281,7 @@ fn thread_main(configuration: &Configuration) {
     boot_sequence(configuration.get_data_filepath(), configuration.get_configuration_path());
     loop {
         let command: String = input::input_handle("memoryspace", true);
-        command_proc(&command, configuration.get_data_filepath(), VERSION);
+        command_proc(&command, configuration.get_data_filepath(), VERSION, &configuration);
     }
 }
 
