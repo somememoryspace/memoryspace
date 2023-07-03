@@ -102,7 +102,9 @@ pub fn get_filesize(filepath: &String) -> String {
             let size = metadata.len();
             return size.to_string() + " Bytes";
         },
-        Err(error) => panic!("panic! writing file error: {:?}", error),
+        Err(_error) => {
+            return String::from("0") + " Bytes";
+        }
     };
 } 
 
