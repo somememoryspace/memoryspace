@@ -3,7 +3,7 @@ use tabled::{Table, Tabled, settings::Style};
 use crate::file::{self, validate_path_desc};
 
 #[derive(Tabled)]
-#[derive(Eq, PartialEq)]
+#[derive(Eq, PartialEq, Clone)]
 pub struct IndexItem {
     index: usize,
     system_path: String,
@@ -23,6 +23,15 @@ impl IndexItem {
             file_type: file::filetype(system_path),
             datapath: data_filepath.to_owned(),
         }
+    }
+    pub fn get_index(&self) -> &usize {
+        return &self.index;
+    }
+    pub fn get_filetype(&self) -> &String {
+        return &self.file_type;
+    }
+    pub fn get_filesize(&self) -> &String {
+        return &self.filesize;
     }
     pub fn get_system_path(&self) -> &String {
         return &self.system_path;
