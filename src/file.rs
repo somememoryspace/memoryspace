@@ -14,24 +14,19 @@ use crate::index::IndexItem;
 pub struct Configuration {
     data_filepath: String,
     configuration_filepath: String,
-    gpg_binary_path: String,
     temp_file_output_default: bool,
 }
 
 impl Configuration {
-    pub fn new(data_filepath: &String, configuration_filepath: &String, gpg_binary_path: &String, temp_file_output_default: &bool) -> Self {
+    pub fn new(data_filepath: &String, configuration_filepath: &String, temp_file_output_default: &bool) -> Self {
         return Configuration { 
             data_filepath: data_filepath.to_owned(),
             configuration_filepath: configuration_filepath.to_owned(),
-            gpg_binary_path: gpg_binary_path.to_owned(),
             temp_file_output_default: temp_file_output_default.to_owned(),
         }
     }
     pub fn get_data_filepath(&self) -> &String {
         return &self.data_filepath;
-    }
-    pub fn get_gpg_binary_path(&self) -> &String {
-        return &self.gpg_binary_path;
     }
     pub fn get_configuration_path(&self) -> &String {
         return &self.configuration_filepath;

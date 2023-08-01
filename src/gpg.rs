@@ -1,14 +1,14 @@
 use std::process::Command;
 use std::str;
 
-pub fn gpg_decrypt_handle(passphrase: &String, filepath: &String, gpg_command_path: &String) -> bool {
+pub fn gpg_decrypt_handle(passphrase: &String, filepath: &String) -> bool {
     if !(filepath.contains(".gpg")) {
         println!("err: attempting to decrypt a non gpg instance.");
         return false;
     }
     let run_command = Command::new("sh")
     .arg("-c")
-    .arg(format!("{gpg_command_path} --batch --pinentry-mode loopback --cipher-algo AES256 --passphrase {passphrase} {filepath}"))
+    .arg(format!("gpg --batch --pinentry-mode loopback --cipher-algo AES256 --passphrase {passphrase} {filepath}"))
     .output();
     let result = match run_command {
         Err(error) => panic!("panic! error running gpg: {:?}", error),
@@ -27,10 +27,10 @@ pub fn gpg_decrypt_handle(passphrase: &String, filepath: &String, gpg_command_pa
     };
 }
 
-pub fn gpg_encrypt_handle(password: &String, filepath: &String, gpg_command_path: &String) -> bool {
+pub fn gpg_encrypt_handle(password: &String, filepath: &String) -> bool {
     let run_command = Command::new("sh")
     .arg("-c")
-    .arg(format!("{gpg_command_path} -c --batch --pinentry-mode loopback --cipher-algo AES256 --passphrase {password} {filepath}"))
+    .arg(format!("gpg -c --batch --pinentry-mode loopback --cipher-algo AES256 --passphrase {password} {filepath}"))
     .output();
     match run_command {
         Err(error) => panic!("panic! error running gpg: {:?}", error),

@@ -3,3 +3,4 @@
 – traits
 – cleanup references
 - optimize structs
+- fix gpg handle

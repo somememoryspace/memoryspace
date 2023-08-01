@@ -134,8 +134,7 @@ fn command_proc(command: &str, data_filepath: &String, version: f32, configurati
                     file::create_file(&filepath, true);
                     let success = gpg::gpg_encrypt_handle(
                         &passphrase, 
-                        &filepath, 
-                        configuration.get_gpg_binary_path());
+                        &filepath);
                     match success {
                         false => {
                             println!("err: encrypt process failed");
@@ -176,9 +175,7 @@ fn command_proc(command: &str, data_filepath: &String, version: f32, configurati
                             }
                             let success = gpg::gpg_decrypt_handle(
                                 &input::password_input_handle(), 
-                                &filepath, 
-                                configuration.get_gpg_binary_path()
-                            );
+                                &filepath);
                             match success {
                                 false => {
                                     println!("err: decrypt process failed");
@@ -292,7 +289,6 @@ fn main() {
             let configuration = file::Configuration::new(
                &String::from("./data/data.ms"),
                &String::from("./config/config.yml"),
-               &String::from("/usr/bin/gpg"),
                &false,
             );
             thread_main(&configuration);
