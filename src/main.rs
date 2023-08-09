@@ -165,7 +165,6 @@ fn command_proc(command: &str, data_filepath: &String, version: f32, configurati
                     let array_total_length: usize = mutex_guard.0.len();
                     let selection = input::input_handle_integer(&array_bounds_limiter, &array_total_length);
                     let filepath = mutex_guard.0.get(selection);
-                    let temp_file_bool = input::confirmation_bool(&String::from("produce output file?"));
                     match filepath {
                         None => panic!("panic! array indexing error"),
                         Some(index_item) => {
@@ -175,6 +174,17 @@ fn command_proc(command: &str, data_filepath: &String, version: f32, configurati
                                 println!("err: attempting to decrypt a dead file");
                                 return;
                             }
+                            //decompression output
+                            if file::filetype(&filepath).eq(".zip") || file::filetype(&filepath).eq(".gz") {
+                                let success = gpg::gpg_decrypt_handle(
+                                    &input::password_input_handle(), 
+                                    &filepath);
+                                let temp_file_bool: bool = input::confirmation_bool(&String::from("decompress archive?"));
+                                //finish handle here to match text one below, but for decompression option
+                                return;
+                            }
+                            //text file output
+                            let temp_file_bool: bool = input::confirmation_bool(&String::from("produce output file?"));
                             let success = gpg::gpg_decrypt_handle(
                                 &input::password_input_handle(), 
                                 &filepath);

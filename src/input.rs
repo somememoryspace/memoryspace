@@ -13,7 +13,6 @@ pub fn password_input_handle() -> String {
 
 pub fn input_handle(prompt: &str, lowercase: bool) -> String {
     let mut input_string = String::new();
-    
     loop {            
         print!("{} > ", prompt);
         input_string.clear();
