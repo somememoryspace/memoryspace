@@ -118,8 +118,9 @@ fn command_proc(command: &str, data_filepath: &String, version: f32, configurati
                 "index-remove" => {
                     println!("index: removing entry");
                     index::index_table_display(&mutex_guard.0);
-                    let array_bounds_limiter: usize = &mutex_guard.0.len() - 1;
-                    let selection = input::input_handle_integer(&array_bounds_limiter);
+                    let array_bounds_limiter: usize = mutex_guard.0.len() - 1;
+                    let array_total_length: usize = mutex_guard.0.len();
+                    let selection = input::input_handle_integer(&array_bounds_limiter, &array_total_length);
                     let selection_path = &mutex_guard.0[selection].get_system_path().to_string();
                     mutex_guard.1.remove(selection_path);
                     mutex_guard.0.remove(selection);
@@ -161,7 +162,8 @@ fn command_proc(command: &str, data_filepath: &String, version: f32, configurati
                     println!("index: decrypt an entry");
                     index::index_table_display(&mutex_guard.0);
                     let array_bounds_limiter: usize = mutex_guard.0.len() - 1;
-                    let selection = input::input_handle_integer(&array_bounds_limiter);
+                    let array_total_length: usize = mutex_guard.0.len();
+                    let selection = input::input_handle_integer(&array_bounds_limiter, &array_total_length);
                     let filepath = mutex_guard.0.get(selection);
                     let temp_file_bool = input::confirmation_bool(&String::from("produce output file?"));
                     match filepath {

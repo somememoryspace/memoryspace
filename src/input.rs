@@ -31,21 +31,26 @@ pub fn input_handle(prompt: &str, lowercase: bool) -> String {
     }
 }
 
-pub fn input_handle_integer(array_bounds_limiter: &usize) -> usize {
+pub fn input_handle_integer(array_bounds_limiter: &usize, array_total_length: &usize) -> usize {
     let base_input = input_handle("enter a number:", false);
     match &base_input.parse::<usize>() {
         Err(error) => {
             println!("err: invalid entry. {}", error);
-            let value = input_handle_integer(array_bounds_limiter);
+            let value = input_handle_integer(array_bounds_limiter, array_total_length);
             return value;
         },
         Ok(value) => {
+            if value >= array_total_length {
+                println!("err: invalid entry");
+                let value = input_handle_integer(array_bounds_limiter, array_total_length);
+                return value;
+            }
             if array_bounds_limiter.eq(&0) {
                 return *value;
             }
-            if array_bounds_limiter < value {
+            if array_bounds_limiter <= value {
                 println!("err: invalid entry");
-                let value = input_handle_integer(array_bounds_limiter);
+                let value = input_handle_integer(array_bounds_limiter, array_total_length);
                 return value;
             }
             return *value;
